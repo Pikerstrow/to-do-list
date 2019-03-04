@@ -11,6 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Auth::routes();
+
+Route::get('/', 'HomeController@index')->name('home');
+Route::get('/username', 'HomeController@getUsername');
+Route::resource('/tasks', 'TasksController')->middleware('auth');
+
+//Route::get('/{vue_capture?}', function () {
+//    return view('admin');
+//})->where('vue_capture', '[\/\w\.-]*');
