@@ -10,7 +10,7 @@
                </router-link>
 
                <li class="dropdown">
-                  <a href="javascript:;" click="event.preventDefault();" class="drop-toggle"><span class="i-wrap"><i class="fas fa-tasks"></i></span><span class="nav-a-text">&nbsp;Задачі
+                  <a href="javascript:;" click="event.preventDefault();" class="drop-toggle"><span class="i-wrap"><i class="fas fa-tasks"></i></span><span class="nav-a-text">&nbsp;Завдання
                         &nbsp;&nbsp;</span><i class="fas fa-angle-right"></i></a>
                   <ul class="sidebar_submenu">
 

@@ -34,3 +34,4 @@ $(document).ready(function(){
         $(this).attr('aria-expanded') == 'true' ? $(this).attr('aria-expanded', 'false') : $(this).attr('aria-expanded', 'true');
     });
 });
+

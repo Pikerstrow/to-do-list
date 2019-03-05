@@ -24,7 +24,10 @@ export const store = new Vuex.Store({
             state.tasks = payload;
         },
         addTask(state, task){
-            state.tasks.push(task);
+            state.tasks.unshift(task);
+        },
+        updateTasks(state, {index, task}){
+            state.tasks[index] = task;
         }
     },
     actions: {

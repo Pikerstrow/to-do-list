@@ -28,7 +28,7 @@
                      <td>{{ task.description }}</td>
                      <td :style="[task.status == 0 ? {'color':'red'} : {'color':'green'}]">{{ task.status == 0 ? "Не виконане" : 'Виконане' }}</td>
                      <td>
-                        <a class="task-done" title="Змінити статус"><i class="fas fa-check"></i></a>
+                        <a @click="changeStatus(index)" class="task-done" title="Змінити статус"><i class="fas fa-check"></i></a>
                         <a class="task-edit" title="Редагувати"><i class="fas fa-pencil-alt"></i></a>
                         <a class="task-delete" title="Видалити"><i class="fas fa-times"></i></a>
                      </td>
@@ -52,9 +52,21 @@
 
 <script>
     export default {
+        data(){
+            return {
+                toastr: toastr.options = {
+                    "positionClass": 'toast-top-full-width'
+                }
+            }
+        },
         computed:{
             tasks(){
-                return this.$store.getters.tasks;
+                return this.$store.getters.tasks.filter(
+                    (task) => {
+                        let today = new Date().toISOString().substr(0, 10);
+                        return task.due_date == today;
+                    }
+                );
             },
             currentDate(){
                 let today = new Date();
@@ -65,6 +77,35 @@
                     timezone: 'UTC+2'
                 };
                 return today.toLocaleString("UK-ua", options);
+            }
+        },
+        methods: {
+            changeStatus(index){
+                let todaysTasks = this.tasks;
+                let task = todaysTasks[index];
+
+                if(task.status === 1){
+                    task.status = 0;
+                } else {
+                    task.status = 1;
+                }
+
+                axios.patch(
+                    'http://to-do-list.test/tasks/change-status/' + task.id,
+                    task
+                ).then(
+                    response => {
+                        let task = response.data.task[0];
+                        this.$store.commit('updateTasks', {index, task});
+
+                        /*notification with toastr*/
+                        toastr.success(response.data.message);
+                    }
+                ).catch(
+                    error => {
+                        console.log(error);
+                    }
+                );
             }
         }
     }
