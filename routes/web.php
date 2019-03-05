@@ -15,9 +15,7 @@ Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
 Route::get('/username', 'HomeController@getUsername');
+Route::get('/tasks/get-for-editing/{id}', 'TasksController@getTaskForEditing')->middleware('auth');
 Route::resource('/tasks', 'TasksController')->middleware('auth');
 Route::patch('/tasks/change-status/{id}', 'TasksController@updateStatus')->middleware('auth');
 
-//Route::get('/{vue_capture?}', function () {
-//    return view('admin');
-//})->where('vue_capture', '[\/\w\.-]*');

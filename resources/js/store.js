@@ -6,7 +6,8 @@ Vue.use(Vuex);
 export const store = new Vuex.Store({
     state: {
         username: null,
-        tasks: []
+        tasks: [],
+        taskForEditing: {}
     },
     getters: {
         username(state){
@@ -14,6 +15,9 @@ export const store = new Vuex.Store({
         },
         tasks(state){
             return state.tasks;
+        },
+        taskForEditing(state){
+            return state.taskForEditing;
         }
     },
     mutations: {
@@ -23,11 +27,17 @@ export const store = new Vuex.Store({
         GET_TASKS(state, payload){
             state.tasks = payload;
         },
+        GET_TASK_FOR_EDITING(state, payload){
+            state.taskForEditing = payload
+        },
         addTask(state, task){
             state.tasks.unshift(task);
         },
         updateTasks(state, {index, task}){
             state.tasks[index] = task;
+        },
+        deleteTask(state, index){
+            state.tasks.splice(index, 1);
         }
     },
     actions: {
@@ -35,6 +45,13 @@ export const store = new Vuex.Store({
             axios.get('http://to-do-list.test/username').then(
                 response => {
                     commit('GET_USER_NAME', response.data.username);
+                }
+            );
+        },
+        getTaskForEditing({commit}, id){
+            axios.get('http://to-do-list.test/tasks/get-for-editing/' + id).then(
+                response => {
+                    commit('GET_TASK_FOR_EDITING', response.data.task);
                 }
             );
         },

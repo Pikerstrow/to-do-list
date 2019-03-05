@@ -1798,6 +1798,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 // Import this component
  // Import date picker css
 
@@ -1811,7 +1818,11 @@ __webpack_require__.r(__webpack_exports__);
         due_date: new Date().toISOString().substr(0, 10),
         status: 0
       },
-      errors: [],
+      errors: {
+        'title': '',
+        'description': '',
+        'due_date': ''
+      },
       toastr: toastr.options = {
         "positionClass": 'toast-top-full-width'
       }
@@ -1821,10 +1832,11 @@ __webpack_require__.r(__webpack_exports__);
     createTask: function createTask() {
       var _this = this;
 
+      console.log(this.errors);
       axios.post('http://to-do-list.test/tasks', this.task).then(function (response) {
         _this.$store.commit('addTask', response.data.task);
 
-        _this.errors = [];
+        _this.errors = {};
 
         _this.resetData();
         /*notification with toastr*/
@@ -1833,18 +1845,104 @@ __webpack_require__.r(__webpack_exports__);
         toastr.success(response.data.message);
       }).catch(function (error) {
         if (error.response.data.errors.title) {
-          _this.errors.push(error.response.data.errors.title[0]);
+          _this.$set(_this.errors, 'title', error.response.data.errors.title[0]);
         }
 
         if (error.response.data.errors.description) {
-          _this.errors.push(error.response.data.errors.description[0]);
+          _this.$set(_this.errors, 'description', error.response.data.errors.description[0]);
         }
+
+        if (error.response.data.errors.due_date) {
+          _this.$set(_this.errors, 'due_date', error.response.data.errors.due_date[0]);
+        }
+
+        console.log(_this.errors);
       });
     },
     resetData: function resetData() {
       this.task.title = '';
       this.task.description = '';
     }
+  },
+  components: {
+    datePicker: vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0___default.a
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/EditTask.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/EditTask.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-bootstrap-datetimepicker */ "./node_modules/vue-bootstrap-datetimepicker/dist/vue-bootstrap-datetimepicker.js");
+/* harmony import */ var vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var pc_bootstrap4_datetimepicker_build_css_bootstrap_datetimepicker_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css */ "./node_modules/pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css");
+/* harmony import */ var pc_bootstrap4_datetimepicker_build_css_bootstrap_datetimepicker_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(pc_bootstrap4_datetimepicker_build_css_bootstrap_datetimepicker_css__WEBPACK_IMPORTED_MODULE_1__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// Import this component
+ // Import date picker css
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['id'],
+  data: function data() {
+    return {
+      errors: {}
+    };
+  },
+  computed: {
+    task: function task() {
+      return this.$store.getters.taskForEditing;
+    }
+  },
+  methods: {
+    updateTask: function updateTask() {}
+  },
+  mounted: function mounted() {
+    this.$store.dispatch('getTaskForEditing', this.$route.params.id);
   },
   components: {
     datePicker: vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0___default.a
@@ -1990,6 +2088,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2018,31 +2120,46 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     changeStatus: function changeStatus(index) {
-      var _this = this;
-
       var todaysTasks = this.tasks;
       var task = todaysTasks[index];
+      /*Кщпіюємо обєкт в новий, для того, що оновити UI виключно після успішного запиту до БД*/
 
-      if (task.status === 1) {
-        task.status = 0;
+      var copiedTask = JSON.parse(JSON.stringify(task));
+
+      if (copiedTask.status === 1) {
+        copiedTask.status = 0;
       } else {
-        task.status = 1;
+        copiedTask.status = 1;
       }
 
-      axios.patch('http://to-do-list.test/tasks/change-status/' + task.id, task).then(function (response) {
-        var task = response.data.task[0];
-
-        _this.$store.commit('updateTasks', {
-          index: index,
-          task: task
-        });
+      axios.patch('http://to-do-list.test/tasks/change-status/' + task.id, copiedTask).then(function (response) {
+        task.status = response.data.task.status;
         /*notification with toastr*/
-
 
         toastr.success(response.data.message);
       }).catch(function (error) {
         console.log(error);
       });
+    },
+    deleteTask: function deleteTask(index) {
+      var _this = this;
+
+      var confirmBox = confirm('Ви дійсно бажаєте видалити завдання?');
+
+      if (confirmBox == true) {
+        var todaysTasks = this.tasks;
+        var task = todaysTasks[index];
+        axios.delete("http://to-do-list.test/tasks/" + task.id).then(function (response) {
+          _this.$store.commit('deleteTask', index); //this.$delete(this.tasks, index);
+
+          /*notification with toastr*/
+
+
+          toastr.success(response.data.message);
+        }).catch(function (error) {
+          console.log("delete failed");
+        });
+      }
     }
   }
 });
@@ -59232,6 +59349,7 @@ var render = function() {
             }
           ],
           staticClass: "form-control",
+          class: { "is-invalid": _vm.errors.title },
           attrs: { type: "text", id: "title" },
           domProps: { value: _vm.task.title },
           on: {
@@ -59242,7 +59360,13 @@ var render = function() {
               _vm.$set(_vm.task, "title", $event.target.value)
             }
           }
-        })
+        }),
+        _vm._v(" "),
+        _vm.errors.title
+          ? _c("div", { staticClass: "invalid-feedback" }, [
+              _vm._v(_vm._s(_vm.errors.title))
+            ])
+          : _vm._e()
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "form-group" }, [
@@ -59260,6 +59384,7 @@ var render = function() {
             }
           ],
           staticClass: "form-control",
+          class: { "is-invalid": _vm.errors.description },
           attrs: { type: "text", id: "description" },
           domProps: { value: _vm.task.description },
           on: {
@@ -59270,7 +59395,13 @@ var render = function() {
               _vm.$set(_vm.task, "description", $event.target.value)
             }
           }
-        })
+        }),
+        _vm._v(" "),
+        _vm.errors.description
+          ? _c("div", { staticClass: "invalid-feedback" }, [
+              _vm._v(_vm._s(_vm.errors.description))
+            ])
+          : _vm._e()
       ]),
       _vm._v(" "),
       _c(
@@ -59280,6 +59411,7 @@ var render = function() {
           _c("label", [_vm._v("Планова дата виконання завдання ")]),
           _vm._v(" "),
           _c("date-picker", {
+            class: { "is-invalid": _vm.errors.due_date },
             attrs: { config: { format: "YYYY-MM-DD", locale: "uk" } },
             model: {
               value: _vm.task.due_date,
@@ -59288,7 +59420,13 @@ var render = function() {
               },
               expression: "task.due_date"
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.errors.due_date
+            ? _c("div", { staticClass: "invalid-feedback" }, [
+                _vm._v(_vm._s(_vm.errors.due_date))
+              ])
+            : _vm._e()
         ],
         1
       ),
@@ -59318,6 +59456,157 @@ var staticRenderFns = [
     return _c("div", { staticClass: "col-12 admin-welcome" }, [
       _c("h2", { staticClass: "admin-welcome-h2" }, [
         _vm._v("\n         Створення нового завдання\n      ")
+      ]),
+      _vm._v(" "),
+      _c("hr")
+    ])
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true&":
+/*!***********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true& ***!
+  \***********************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "row justify-content-center" }, [
+    _vm._m(0),
+    _vm._v(" "),
+    _c("div", { staticClass: "col-12 col-sm-10 col-lg-8 col-xl-7" }, [
+      _c("div", { staticClass: "form-group" }, [
+        _c("label", { attrs: { for: "title" } }, [_vm._v("Назва завдання")]),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.task.title,
+              expression: "task.title"
+            }
+          ],
+          staticClass: "form-control",
+          class: { "is-invalid": _vm.errors.title },
+          attrs: { type: "text", id: "title" },
+          domProps: { value: _vm.task.title },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.task, "title", $event.target.value)
+            }
+          }
+        }),
+        _vm._v(" "),
+        _vm.errors.title
+          ? _c("div", { staticClass: "invalid-feedback" }, [
+              _vm._v(_vm._s(_vm.errors.title))
+            ])
+          : _vm._e()
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "form-group" }, [
+        _c("label", { attrs: { for: "description" } }, [
+          _vm._v("Опис завдання")
+        ]),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.task.description,
+              expression: "task.description"
+            }
+          ],
+          staticClass: "form-control",
+          class: { "is-invalid": _vm.errors.description },
+          attrs: { type: "text", id: "description" },
+          domProps: { value: _vm.task.description },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.task, "description", $event.target.value)
+            }
+          }
+        }),
+        _vm._v(" "),
+        _vm.errors.description
+          ? _c("div", { staticClass: "invalid-feedback" }, [
+              _vm._v(_vm._s(_vm.errors.description))
+            ])
+          : _vm._e()
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "form-group" },
+        [
+          _c("label", [_vm._v("Планова дата виконання завдання ")]),
+          _vm._v(" "),
+          _c("date-picker", {
+            class: { "is-invalid": _vm.errors.due_date },
+            attrs: { config: { format: "YYYY-MM-DD", locale: "uk" } },
+            model: {
+              value: _vm.task.due_date,
+              callback: function($$v) {
+                _vm.$set(_vm.task, "due_date", $$v)
+              },
+              expression: "task.due_date"
+            }
+          }),
+          _vm._v(" "),
+          _vm.errors.due_date
+            ? _c("div", { staticClass: "invalid-feedback" }, [
+                _vm._v(_vm._s(_vm.errors.due_date))
+              ])
+            : _vm._e()
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "form-group mt-4" }, [
+        _c(
+          "button",
+          {
+            staticClass: "btn btn-primary col-12",
+            on: {
+              click: function($event) {
+                return _vm.updateTask()
+              }
+            }
+          },
+          [_vm._v("Редагувати")]
+        )
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-12 admin-welcome" }, [
+      _c("h2", { staticClass: "admin-welcome-h2" }, [
+        _vm._v("\n         Редагування завдання завдання\n      ")
       ]),
       _vm._v(" "),
       _c("hr")
@@ -59477,25 +59766,54 @@ var render = function() {
                             ]
                           ),
                           _vm._v(" "),
-                          _c("td", [
-                            _c(
-                              "a",
-                              {
-                                staticClass: "task-done",
-                                attrs: { title: "Змінити статус" },
-                                on: {
-                                  click: function($event) {
-                                    return _vm.changeStatus(index)
+                          _c(
+                            "td",
+                            [
+                              _c(
+                                "a",
+                                {
+                                  staticClass: "task-done",
+                                  attrs: { title: "Змінити статус" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.changeStatus(index)
+                                    }
                                   }
-                                }
-                              },
-                              [_c("i", { staticClass: "fas fa-check" })]
-                            ),
-                            _vm._v(" "),
-                            _vm._m(1, true),
-                            _vm._v(" "),
-                            _vm._m(2, true)
-                          ])
+                                },
+                                [_c("i", { staticClass: "fas fa-check" })]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "router-link",
+                                {
+                                  staticClass: "task-edit",
+                                  attrs: {
+                                    to: "/tasks/edit/" + task.id,
+                                    tag: "a",
+                                    title: "Редагувати",
+                                    "active-class": "active",
+                                    exact: ""
+                                  }
+                                },
+                                [_c("i", { staticClass: "fas fa-pencil-alt" })]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "a",
+                                {
+                                  staticClass: "task-delete",
+                                  attrs: { title: "Видалити" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.deleteTask(index)
+                                    }
+                                  }
+                                },
+                                [_c("i", { staticClass: "fas fa-times" })]
+                              )
+                            ],
+                            1
+                          )
                         ]
                       )
                     }),
@@ -59510,7 +59828,7 @@ var render = function() {
                 staticClass:
                   "col-12 no-news-info-block d-flex justify-content-center align-items-center"
               },
-              [_vm._m(3)]
+              [_vm._m(1)]
             )
       ])
     ])
@@ -59534,26 +59852,6 @@ var staticRenderFns = [
         _c("th", [_vm._v("Дії")])
       ])
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "a",
-      { staticClass: "task-edit", attrs: { title: "Редагувати" } },
-      [_c("i", { staticClass: "fas fa-pencil-alt" })]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "a",
-      { staticClass: "task-delete", attrs: { title: "Видалити" } },
-      [_c("i", { staticClass: "fas fa-times" })]
-    )
   },
   function() {
     var _vm = this
@@ -59793,7 +60091,7 @@ var render = function() {
                     "router-link",
                     {
                       attrs: {
-                        to: "/tasks",
+                        to: { name: "tasks" },
                         tag: "li",
                         "active-class": "active",
                         exact: ""
@@ -75887,6 +76185,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/EditTask.vue":
+/*!**********************************************!*\
+  !*** ./resources/js/components/EditTask.vue ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EditTask_vue_vue_type_template_id_cdb5aecc_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true& */ "./resources/js/components/EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true&");
+/* harmony import */ var _EditTask_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EditTask.vue?vue&type=script&lang=js& */ "./resources/js/components/EditTask.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _EditTask_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _EditTask_vue_vue_type_template_id_cdb5aecc_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _EditTask_vue_vue_type_template_id_cdb5aecc_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  "cdb5aecc",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/EditTask.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/EditTask.vue?vue&type=script&lang=js&":
+/*!***********************************************************************!*\
+  !*** ./resources/js/components/EditTask.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_EditTask_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./EditTask.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/EditTask.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_EditTask_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true&":
+/*!*****************************************************************************************!*\
+  !*** ./resources/js/components/EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true& ***!
+  \*****************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_EditTask_vue_vue_type_template_id_cdb5aecc_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/EditTask.vue?vue&type=template&id=cdb5aecc&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_EditTask_vue_vue_type_template_id_cdb5aecc_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_EditTask_vue_vue_type_template_id_cdb5aecc_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/Home.vue":
 /*!******************************************!*\
   !*** ./resources/js/components/Home.vue ***!
@@ -76386,6 +76753,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_Home_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/Home.vue */ "./resources/js/components/Home.vue");
 /* harmony import */ var _components_AddTask_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/AddTask.vue */ "./resources/js/components/AddTask.vue");
 /* harmony import */ var _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/ViewTasks.vue */ "./resources/js/components/ViewTasks.vue");
+/* harmony import */ var _components_EditTask_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/EditTask.vue */ "./resources/js/components/EditTask.vue");
+
 
 
 
@@ -76401,6 +76770,11 @@ var routes = [{
   path: '/tasks',
   name: 'tasks',
   component: _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+}, {
+  path: '/tasks/edit/:id',
+  name: 'tasks_edit',
+  component: _components_EditTask_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
+  props: true
 }];
 
 /***/ }),
@@ -76424,7 +76798,8 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
 var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   state: {
     username: null,
-    tasks: []
+    tasks: [],
+    taskForEditing: {}
   },
   getters: {
     username: function username(state) {
@@ -76432,6 +76807,9 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     },
     tasks: function tasks(state) {
       return state.tasks;
+    },
+    taskForEditing: function taskForEditing(state) {
+      return state.taskForEditing;
     }
   },
   mutations: {
@@ -76441,6 +76819,9 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     GET_TASKS: function GET_TASKS(state, payload) {
       state.tasks = payload;
     },
+    GET_TASK_FOR_EDITING: function GET_TASK_FOR_EDITING(state, payload) {
+      state.taskForEditing = payload;
+    },
     addTask: function addTask(state, task) {
       state.tasks.unshift(task);
     },
@@ -76448,6 +76829,9 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
       var index = _ref.index,
           task = _ref.task;
       state.tasks[index] = task;
+    },
+    deleteTask: function deleteTask(state, index) {
+      state.tasks.splice(index, 1);
     }
   },
   actions: {
@@ -76457,8 +76841,14 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
         commit('GET_USER_NAME', response.data.username);
       });
     },
-    getTasks: function getTasks(_ref3) {
+    getTaskForEditing: function getTaskForEditing(_ref3, id) {
       var commit = _ref3.commit;
+      axios.get('http://to-do-list.test/tasks/get-for-editing/' + id).then(function (response) {
+        commit('GET_TASK_FOR_EDITING', response.data.task);
+      });
+    },
+    getTasks: function getTasks(_ref4) {
+      var commit = _ref4.commit;
       axios.get('http://to-do-list.test/tasks').then(function (response) {
         commit('GET_TASKS', response.data.tasks);
       }).catch(function (error) {

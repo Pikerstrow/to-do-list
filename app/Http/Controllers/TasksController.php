@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TasksController extends Controller
 {
@@ -60,12 +61,18 @@ class TasksController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $task = $request->user()->tasks()->whereId($id)->update($request->all());
+        $result = $request->user()->tasks()->whereId($id)->update($request->all());
 
-        return response()->json([
-            'task' => $task,
-            'message' => 'Статус завдання успішно змінений!'
-        ], 200);
+        if($result){
+           $task = $request->user()->tasks()->whereId($id)->first();
+
+            return response()->json([
+                'task' => $task,
+                'message' => 'Статус завдання успішно змінений!'
+            ], 200);
+        }
+
+        return null;
 
     }
 
@@ -78,6 +85,15 @@ class TasksController extends Controller
     public function show($id)
     {
         //
+    }
+
+    public function getTaskForEditing($id)
+    {
+        $task = DB::table('tasks')->whereId($id)->first();
+
+        return response()->json([
+            'task' => $task
+        ], 200);
     }
 
     /**
@@ -111,6 +127,12 @@ class TasksController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $result = DB::table('tasks')->whereId($id)->delete();
+
+        if($result){
+            return response()->json([
+                'message' => 'Завдання успішно видалене!'
+            ], 200);
+        }
     }
 }

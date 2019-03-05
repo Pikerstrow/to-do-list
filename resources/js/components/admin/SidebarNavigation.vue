@@ -14,7 +14,7 @@
                         &nbsp;&nbsp;</span><i class="fas fa-angle-right"></i></a>
                   <ul class="sidebar_submenu">
 
-                     <router-link to="/tasks" tag="li" active-class="active" exact>
+                     <router-link :to="{name: 'tasks'}" tag="li" active-class="active" exact>
                         <a><span class="i-wrap"><i class="fas fa-eye"></i></span><span class="nav-a-text">
                                 Переглянути </span>
                         </a>

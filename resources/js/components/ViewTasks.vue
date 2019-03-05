@@ -29,8 +29,12 @@
                      <td :style="[task.status == 0 ? {'color':'red'} : {'color':'green'}]">{{ task.status == 0 ? "Не виконане" : 'Виконане' }}</td>
                      <td>
                         <a @click="changeStatus(index)" class="task-done" title="Змінити статус"><i class="fas fa-check"></i></a>
-                        <a class="task-edit" title="Редагувати"><i class="fas fa-pencil-alt"></i></a>
-                        <a class="task-delete" title="Видалити"><i class="fas fa-times"></i></a>
+
+                        <router-link :to="'/tasks/edit/' + task.id" tag="a" class="task-edit" title="Редагувати" active-class="active" exact>
+                          <i class="fas fa-pencil-alt"></i>
+                        </router-link>
+
+                        <a @click="deleteTask(index)" class="task-delete" title="Видалити"><i class="fas fa-times"></i></a>
                      </td>
                   </tr>
                   </tbody>
@@ -84,19 +88,21 @@
                 let todaysTasks = this.tasks;
                 let task = todaysTasks[index];
 
-                if(task.status === 1){
-                    task.status = 0;
+                /*Кщпіюємо обєкт в новий, для того, що оновити UI виключно після успішного запиту до БД*/
+                let copiedTask = JSON.parse(JSON.stringify(task));
+
+                if(copiedTask.status === 1){
+                    copiedTask.status = 0;
                 } else {
-                    task.status = 1;
+                    copiedTask.status = 1;
                 }
 
                 axios.patch(
                     'http://to-do-list.test/tasks/change-status/' + task.id,
-                    task
+                    copiedTask
                 ).then(
                     response => {
-                        let task = response.data.task[0];
-                        this.$store.commit('updateTasks', {index, task});
+                        task.status = response.data.task.status;
 
                         /*notification with toastr*/
                         toastr.success(response.data.message);
@@ -106,6 +112,26 @@
                         console.log(error);
                     }
                 );
+            },
+            deleteTask(index){
+                let confirmBox = confirm('Ви дійсно бажаєте видалити завдання?');
+
+                if(confirmBox == true){
+                    let todaysTasks = this.tasks;
+                    let task = todaysTasks[index];
+
+                    axios.delete("http://to-do-list.test/tasks/" + task.id).then(
+                        response=> {
+                            this.$store.commit('deleteTask', index);
+                            //this.$delete(this.tasks, index);
+
+                            /*notification with toastr*/
+                            toastr.success(response.data.message);
+                        }
+                    ).catch(error => {
+                        console.log("delete failed");
+                    });
+                }
             }
         }
     }
