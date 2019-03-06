@@ -29,9 +29,12 @@
                   </ul>
                </li>
 
-               <li><a href="#"><span class="i-wrap"><i class="far fa-calendar-alt"></i></span>
-                  <span class="nav-a-text">Календар</span></a>
-               </li>
+               <router-link to="/calendar" tag="li" active-class="active" exact>
+                  <a><span class="i-wrap"><i class="far fa-calendar-alt"></i></span>
+                     <span class="nav-a-text">Календар</span>
+                  </a>
+               </router-link>
+
             </ul>
          </div>
       </aside>

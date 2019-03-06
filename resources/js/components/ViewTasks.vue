@@ -55,6 +55,8 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
+
     export default {
         data(){
             return {
@@ -98,11 +100,11 @@
                 }
 
                 axios.patch(
-                    'http://to-do-list.test/tasks/change-status/' + task.id,
+                    'http://to-do-list.test/tasks/change-status/' + copiedTask.id,
                     copiedTask
                 ).then(
                     response => {
-                        task.status = response.data.task.status;
+                        this.tasks[index].status = response.data.task.status;
 
                         /*notification with toastr*/
                         toastr.success(response.data.message);

@@ -35,7 +35,16 @@ export const store = new Vuex.Store({
         },
         updateTasks(state, updatedTask){
             let index = state.tasks.findIndex(task => task.id == updatedTask.id);
-            state.tasks[index] = updatedTask;
+
+            /*ПРОБЛЕМА ТУТ!!!! ОНОВИТИ ВЛАСТИВОСТІ НЕ МІНЯЮЧИ ОБ'єКТ*/
+            //state.tasks[index] = updatedTask; - не вірно!!!!
+
+            let taskForUpdating = state.tasks[index];
+
+            for(let key in taskForUpdating){
+                taskForUpdating[key] = updatedTask[key];
+            }
+
         },
         deleteTask(state, index){
             state.tasks.splice(index, 1);
