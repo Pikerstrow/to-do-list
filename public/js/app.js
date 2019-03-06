@@ -1922,6 +1922,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // Import this component
  // Import date picker css
 
@@ -1939,7 +1948,39 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    updateTask: function updateTask() {}
+    updateTask: function updateTask() {
+      var _this = this;
+
+      axios.patch('http://to-do-list.test/tasks/' + this.task.id, this.task).then(function (response) {
+        var updatedTask = response.data.task;
+
+        _this.$store.commit('updateTasks', updatedTask);
+        /*notification with toastr*/
+
+
+        toastr.success(response.data.message);
+
+        _this.$router.push('/tasks');
+      }).catch(function (error) {
+        if (error.response.data.errors.title) {
+          _this.$set(_this.errors, 'title', error.response.data.errors.title[0]);
+        }
+
+        if (error.response.data.errors.description) {
+          _this.$set(_this.errors, 'description', error.response.data.errors.description[0]);
+        }
+
+        if (error.response.data.errors.status) {
+          _this.$set(_this.errors, 'status', error.response.data.errors.status[0]);
+        }
+
+        if (error.response.data.errors.due_date) {
+          _this.$set(_this.errors, 'due_date', error.response.data.errors.due_date[0]);
+        }
+
+        console.log(_this.errors);
+      });
+    }
   },
   mounted: function mounted() {
     this.$store.dispatch('getTaskForEditing', this.$route.params.id);
@@ -59555,6 +59596,55 @@ var render = function() {
           : _vm._e()
       ]),
       _vm._v(" "),
+      _c("div", { staticClass: "form-group" }, [
+        _c("label", { attrs: { for: "status" } }, [_vm._v("Статус завдання")]),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.task.status,
+                expression: "task.status"
+              }
+            ],
+            staticClass: "form-control",
+            class: { "is-invalid": _vm.errors.status },
+            attrs: { id: "status" },
+            on: {
+              change: function($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function(o) {
+                    return o.selected
+                  })
+                  .map(function(o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.$set(
+                  _vm.task,
+                  "status",
+                  $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                )
+              }
+            }
+          },
+          [
+            _c("option", { attrs: { value: "0" } }, [_vm._v("Не виконане")]),
+            _vm._v(" "),
+            _c("option", { attrs: { value: "1" } }, [_vm._v("Виконане")])
+          ]
+        ),
+        _vm._v(" "),
+        _vm.errors.status
+          ? _c("div", { staticClass: "invalid-feedback" }, [
+              _vm._v(_vm._s(_vm.errors.status))
+            ])
+          : _vm._e()
+      ]),
+      _vm._v(" "),
       _c(
         "div",
         { staticClass: "form-group" },
@@ -76825,30 +76915,31 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     addTask: function addTask(state, task) {
       state.tasks.unshift(task);
     },
-    updateTasks: function updateTasks(state, _ref) {
-      var index = _ref.index,
-          task = _ref.task;
-      state.tasks[index] = task;
+    updateTasks: function updateTasks(state, updatedTask) {
+      var index = state.tasks.findIndex(function (task) {
+        return task.id == updatedTask.id;
+      });
+      state.tasks[index] = updatedTask;
     },
     deleteTask: function deleteTask(state, index) {
       state.tasks.splice(index, 1);
     }
   },
   actions: {
-    getUserName: function getUserName(_ref2) {
-      var commit = _ref2.commit;
+    getUserName: function getUserName(_ref) {
+      var commit = _ref.commit;
       axios.get('http://to-do-list.test/username').then(function (response) {
         commit('GET_USER_NAME', response.data.username);
       });
     },
-    getTaskForEditing: function getTaskForEditing(_ref3, id) {
-      var commit = _ref3.commit;
+    getTaskForEditing: function getTaskForEditing(_ref2, id) {
+      var commit = _ref2.commit;
       axios.get('http://to-do-list.test/tasks/get-for-editing/' + id).then(function (response) {
         commit('GET_TASK_FOR_EDITING', response.data.task);
       });
     },
-    getTasks: function getTasks(_ref4) {
-      var commit = _ref4.commit;
+    getTasks: function getTasks(_ref3) {
+      var commit = _ref3.commit;
       axios.get('http://to-do-list.test/tasks').then(function (response) {
         commit('GET_TASKS', response.data.tasks);
       }).catch(function (error) {

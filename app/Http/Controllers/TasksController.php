@@ -54,7 +54,7 @@ class TasksController extends Controller
 
         return response()->json([
             'task' => $task,
-            'message' => 'Нова задача успішно створена!'
+            'message' => 'Нове завдання успішно додане!'
         ], 200);
 
     }
@@ -116,7 +116,27 @@ class TasksController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $today = Carbon::today();
+
+        $validated = $request->validate([
+            'title' => 'required|min:5',
+            'description' => 'required|min:15|max:300',
+            'due_date' => 'required|date|date_format:Y-m-d|after_or_equal:' . $today,
+            'status' => 'required|integer|between:0,1'
+        ]);
+
+        $result = $request->user()->tasks()->whereId($id)->update($validated);
+
+        if($result){
+            $task = $request->user()->tasks()->whereId($id)->first();
+
+            return response()->json([
+                'task' => $task,
+                'message' => 'Завдання було відредаговане успішно!'
+            ], 200);
+        }
+
+        return null;
     }
 
     /**

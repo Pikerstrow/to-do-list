@@ -23,6 +23,15 @@
          </div>
 
          <div class="form-group">
+            <label for="status">Статус завдання</label>
+            <select v-model="task.status" :class="{'is-invalid': errors.status}" class="form-control" id="status">
+               <option value="0">Не виконане</option>
+               <option value="1">Виконане</option>
+            </select>
+            <div v-if="errors.status" class="invalid-feedback">{{ errors.status }}</div>
+         </div>
+
+         <div class="form-group">
             <label>Планова дата виконання завдання </label>
             <date-picker :class="{'is-invalid': errors.due_date}" v-model="task.due_date" :config="{format: 'YYYY-MM-DD', locale: 'uk'}"></date-picker>
             <div v-if="errors.due_date" class="invalid-feedback">{{ errors.due_date }}</div>
@@ -57,7 +66,36 @@
         },
         methods: {
             updateTask(){
+                axios.patch(
+                    'http://to-do-list.test/tasks/' + this.task.id,
+                    this.task
+                ).then(
+                    response => {
+                        let updatedTask = response.data.task;
+                        this.$store.commit('updateTasks', updatedTask);
 
+                        /*notification with toastr*/
+                        toastr.success(response.data.message);
+
+                        this.$router.push('/tasks');
+                    }
+                ).catch(
+                    error => {
+                        if (error.response.data.errors.title) {
+                            this.$set(this.errors, 'title', error.response.data.errors.title[0]);
+                        }
+                        if (error.response.data.errors.description) {
+                            this.$set(this.errors, 'description', error.response.data.errors.description[0]);
+                        }
+                        if (error.response.data.errors.status) {
+                            this.$set(this.errors, 'status', error.response.data.errors.status[0]);
+                        }
+                        if (error.response.data.errors.due_date) {
+                            this.$set(this.errors, 'due_date', error.response.data.errors.due_date[0]);
+                        }
+                        console.log(this.errors)
+                    }
+                );
             }
         },
         mounted(){

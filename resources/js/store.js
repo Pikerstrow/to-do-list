@@ -33,8 +33,9 @@ export const store = new Vuex.Store({
         addTask(state, task){
             state.tasks.unshift(task);
         },
-        updateTasks(state, {index, task}){
-            state.tasks[index] = task;
+        updateTasks(state, updatedTask){
+            let index = state.tasks.findIndex(task => task.id == updatedTask.id);
+            state.tasks[index] = updatedTask;
         },
         deleteTask(state, index){
             state.tasks.splice(index, 1);
