@@ -16854,6 +16854,24 @@ div.ck-editor__editable {
   width: 100%;
 }
 
+td.day-not-exists {
+  padding: 20px;
+  color: lightgrey;
+}
+
+td.current-date {
+  border: 2px solid grey;
+  font-weight: bold;
+}
+
+.table-calendar td {
+  height: 50px;
+}
+
+.month-switcher {
+  cursor: pointer;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }

@@ -1917,21 +1917,130 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      defaultMonth: this.getStartDateForTitle()
+      month: new Date().getMonth(),
+      year: new Date().getFullYear(),
+      todaysDate: new Date().getDate(),
+      todaysMonth: new Date().getMonth(),
+      todaysYear: new Date().getFullYear()
     };
+  },
+  computed: {
+    defaultMonth: function defaultMonth() {
+      return this.getStartDateForTitle();
+    },
+    date: function date() {
+      return new Date(this.year, this.month);
+    }
   },
   methods: {
     getStartDateForTitle: function getStartDateForTitle() {
-      var today = new Date();
       var options = {
-        year: 'numeric',
-        month: 'long',
-        timezone: 'UTC+2'
+        year: "numeric",
+        month: "long",
+        timezone: "UTC+2"
       };
-      return today.toLocaleString("UK-ua", options);
+      return this.date.toLocaleString("UK-ua", options);
+    },
+    getDaysQuantityInMonth: function getDaysQuantityInMonth(year, month) {
+      return new Date(year, month, 0).getDate();
+    },
+    nextMonth: function nextMonth() {
+      var currentMonth = this.month;
+
+      if (currentMonth == 11) {
+        this.month = 0;
+        this.year++;
+      } else {
+        this.month++;
+      }
+    },
+    prevMonth: function prevMonth() {
+      var currentMonth = this.month;
+      var prevMonth = null;
+
+      if (currentMonth == 0) {
+        this.month = 11;
+        this.year--;
+      } else {
+        this.month--;
+      }
+    },
+    seedDays: function seedDays() {
+      var daysQuantity = this.getDaysQuantityInMonth(this.year, this.month + 1);
+      var previousMonthDaysQuantity = this.getDaysQuantityInMonth(this.year, this.month);
+      var startDayOfMonth = this.getDayForLoop(new Date(this.year, this.month, 1).getDay());
+      var end = 42; // 6 weeks * 7 days;
+
+      var result = "<tr>";
+
+      for (var i = 1; i <= end; i++) {
+        if (i < startDayOfMonth) {
+          result += "<td class='text-center day-not-exists'>" + (previousMonthDaysQuantity - (startDayOfMonth - i - 1)) + "</td>";
+        } else if (i - startDayOfMonth >= daysQuantity) {
+          if (i % 7 === 0) {
+            result += "<td class='text-center day-not-exists'>" + (i - daysQuantity - startDayOfMonth + 1) + "</td></tr><tr>";
+          } else {
+            result += "<td class='text-center day-not-exists'>" + (i - daysQuantity - startDayOfMonth + 1) + "</td>";
+          }
+        } else {
+          var delta = startDayOfMonth - 1; // because days counts from 1;
+
+          var dayOfWeek = new Date(this.year, this.month, i - delta).getDay();
+
+          if (dayOfWeek === 0) {
+            if (this.month === this.todaysMonth && this.year === this.todaysYear && i - delta === this.todaysDate) {
+              result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td></tr><tr>";
+            } else {
+              result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
+            }
+          } else {
+            if (this.month === this.todaysMonth && this.year === this.todaysYear && i - delta === this.todaysDate) {
+              result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td>";
+            } else {
+              result += '<td class="text-center day-exists">' + (i - delta) + "</td>";
+            }
+          }
+        }
+      }
+
+      result += "</tr>";
+      return result;
+    },
+    getDayForLoop: function getDayForLoop(num) {
+      switch (num) {
+        case 0:
+          return 7;
+          break;
+
+        case 1:
+          return 1;
+          break;
+
+        case 2:
+          return 2;
+          break;
+
+        case 3:
+          return 3;
+          break;
+
+        case 4:
+          return 4;
+          break;
+
+        case 5:
+          return 5;
+          break;
+
+        case 6:
+          return 6;
+          break;
+      }
     }
   }
 });
@@ -6897,7 +7006,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.calendar-wrapper[data-v-052a41a9] {\n   width: 100%;\n   border: 2px solid darkgreen;\n   padding: 20px;\n}\n", ""]);
+exports.push([module.i, "\n.table-calendar thead[data-v-052a41a9] {\n   background-color: grey;\n   color: white;\n   border: 2px solid grey;\n}\n.table-calendar thead th[data-v-052a41a9] {\n   border: 1px solid white;\n}\n.calendar-wrapper[data-v-052a41a9] {\n   width: 100%;\n   border: 2px solid darkgreen;\n   padding: 20px;\n}\n", ""]);
 
 // exports
 
@@ -59650,16 +59759,48 @@ var render = function() {
   return _c("div", [
     _vm._m(0),
     _vm._v(" "),
-    _c("div", { staticClass: "row justify-content-center" }, [
-      _c("div", { staticClass: "col-12 col-sm-10" }, [
+    _c("div", { staticClass: "row justify-content-center mb-4" }, [
+      _c("div", { staticClass: "col-12" }, [
         _c("div", { staticClass: "calendar-wrapper" }, [
           _c("h3", { staticClass: "text-center" }, [
-            _vm._v(_vm._s(_vm.defaultMonth))
+            _c(
+              "span",
+              {
+                staticClass: "month-switcher",
+                on: {
+                  click: function($event) {
+                    return _vm.prevMonth()
+                  }
+                }
+              },
+              [_vm._v(" ‹‹ ")]
+            ),
+            _vm._v(
+              "\n               " +
+                _vm._s(_vm.defaultMonth) +
+                "\n               "
+            ),
+            _c(
+              "span",
+              {
+                staticClass: "month-switcher",
+                on: {
+                  click: function($event) {
+                    return _vm.nextMonth()
+                  }
+                }
+              },
+              [_vm._v(" ›› ")]
+            )
           ]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _vm._m(1)
+          _c("table", { staticClass: "table table-calendar" }, [
+            _vm._m(1),
+            _vm._v(" "),
+            _c("tbody", { domProps: { innerHTML: _vm._s(_vm.seedDays()) } })
+          ])
         ])
       ])
     ])
@@ -59684,26 +59825,22 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("table", { staticClass: "table" }, [
-      _c("thead", [
-        _c("tr", [
-          _c("th", { staticClass: "text-center" }, [_vm._v("Пн")]),
-          _vm._v(" "),
-          _c("th", { staticClass: "text-center" }, [_vm._v("Вт")]),
-          _vm._v(" "),
-          _c("th", { staticClass: "text-center" }, [_vm._v("Ср")]),
-          _vm._v(" "),
-          _c("th", { staticClass: "text-center" }, [_vm._v("Чт")]),
-          _vm._v(" "),
-          _c("th", { staticClass: "text-center" }, [_vm._v("Пт")]),
-          _vm._v(" "),
-          _c("th", { staticClass: "text-center" }, [_vm._v("Сб")]),
-          _vm._v(" "),
-          _c("th", { staticClass: "text-center" }, [_vm._v("Нд")])
-        ])
-      ]),
-      _vm._v(" "),
-      _c("tbody")
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { staticClass: "text-center" }, [_vm._v("Пн")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Вт")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Ср")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Чт")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Пт")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Сб")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Нд")])
+      ])
     ])
   }
 ]
