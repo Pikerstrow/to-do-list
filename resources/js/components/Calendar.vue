@@ -45,7 +45,8 @@
                 year: new Date().getFullYear(),
                 todaysDate: new Date().getDate(),
                 todaysMonth: new Date().getMonth(),
-                todaysYear: new Date().getFullYear()
+                todaysYear: new Date().getFullYear(),
+                monthTasksQuantities: []
             };
         },
         computed: {
@@ -127,21 +128,25 @@
                         let delta = startDayOfMonth - 1; // because days counts from 1;
                         let dayOfWeek = new Date(this.year, this.month, i - delta).getDay();
 
+
+                        //console.log("delta: " + (i - delta) + " tasks: " + this.monthTasksQuantities[(i - delta)]);
+
+
+
+
                         if (dayOfWeek === 0) {
                             if (
                                 this.month === this.todaysMonth &&
                                 this.year === this.todaysYear &&
                                 i - delta === this.todaysDate
                             ) {
-                                result +=
-                                    '<td class="text-center day-exists current-date">' +
-                                    (i - delta) +
-                                    "</td></tr><tr>";
+                                if(this.monthTasksQuantities[(i - delta)]){
+                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] + "</td></tr><tr>";
+                                } else {
+                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td></tr><tr>";
+                                }
                             } else {
-                                result +=
-                                    '<td class="text-center day-exists">' +
-                                    (i - delta) +
-                                    "</td></tr><tr>";
+                                result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
                             }
                         } else {
                             if (
@@ -149,13 +154,17 @@
                                 this.year === this.todaysYear &&
                                 i - delta === this.todaysDate
                             ) {
-                                result +=
-                                    '<td class="text-center day-exists current-date">' +
-                                    (i - delta) +
-                                    "</td>";
+                                if(this.monthTasksQuantities[(i - delta)]){
+                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] + "</td>";
+                                } else {
+                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td>";
+                                }
                             } else {
-                                result +=
-                                    '<td class="text-center day-exists">' + (i - delta) + "</td>";
+                                if(this.monthTasksQuantities[(i - delta)]){
+                                    result += '<td class="text-center day-exists">' + (i - delta)  + "|" + this.monthTasksQuantities[(i - delta)] + "</td>";
+                                } else {
+                                    result += '<td class="text-center day-exists">' + (i - delta) + "</td>";
+                                }
                             }
                         }
                     }
@@ -189,7 +198,31 @@
                         return 6;
                         break;
                 }
+            },
+            getTasksQuantityForCalendar(year = this.year, month = this.month + 1 ){
+                axios.get(
+                    'http://to-do-list.test/tasks/get-tasks-quantity-by-month/' + year + "/" + month
+                ).then(
+                    response => {
+                        this.monthTasksQuantities = response.data.quantities;
+
+                        // for(let key in this.monthTasksQuantities){
+                        //     console.log(key + " - " + this.monthTasksQuantities[key]);
+                        //
+                        //     if(parseInt(key) === 8){
+                        //         console.log('equal');
+                        //     }
+                        // }
+                    }
+                ).catch(
+                    error => {
+                        console.log(error);
+                    }
+                );
             }
+        },
+        mounted(){
+            this.getTasksQuantityForCalendar();
         }
     }
 </script>

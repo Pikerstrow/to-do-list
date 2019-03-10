@@ -14,7 +14,8 @@
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
-Route::get('/username', 'HomeController@getUsername');
+Route::get('/username', 'HomeController@getUsername')->middleware('auth');
+Route::get('/tasks/get-tasks-quantity-by-month/{year}/{month}', 'TasksController@getTasksByMonth')->middleware('auth');
 Route::get('/tasks/get-for-editing/{id}', 'TasksController@getTaskForEditing')->middleware('auth');
 Route::resource('/tasks', 'TasksController')->middleware('auth');
 Route::patch('/tasks/change-status/{id}', 'TasksController@updateStatus')->middleware('auth');

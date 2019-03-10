@@ -155,4 +155,28 @@ class TasksController extends Controller
             ], 200);
         }
     }
+
+    public function getTasksByMonth(Request $request, $year, $month)
+    {
+        $tasks = $request->user()->tasks()->whereRaw("MONTH(due_date) = {$month} AND YEAR(due_date) = {$year}")->get();
+
+        $quantities = [];
+
+        /*Рахуємо кількість задач по днях в місяці*/
+        foreach($tasks as $task){
+            $date = explode(' ', $task['due_date'])[0];
+            $day = explode('-', $date)[2];
+            $day = (int)$day;
+
+            if(isset($quantities[$day])){
+                $quantities[$day]++;
+            } else {
+                $quantities[$day] = 1;
+            }
+        }
+
+        return response()->json([
+            'quantities' => $quantities
+        ], 200);
+    }
 }
