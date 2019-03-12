@@ -3,7 +3,7 @@
       <div class="row">
          <div class="col-12">
             <h2 class="admin-welcome-h2 text-center">
-               Поточні завдання на сьогодні ({{ currentDate }})
+               Поточні завдання на {{ this.$route.query.year ? concreteDate : currentDate}}
             </h2>
             <hr>
          </div>
@@ -55,7 +55,6 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
 
     export default {
         data(){
@@ -83,6 +82,21 @@
                     timezone: 'UTC+2'
                 };
                 return today.toLocaleString("UK-ua", options);
+            },
+            concreteDate(){
+                let year = this.$route.query.year ? this.$route.query.year : '';
+                let month = this.$route.query.month ? this.$route.query.month : '';
+                let date = this.$route.query.date ? this.$route.query.date : '';
+
+                let concreteDate = new Date(year, month, date);
+
+                let options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: '2-digit',
+                    timezone: 'UTC+2'
+                };
+                return concreteDate.toLocaleString("UK-ua", options);
             }
         },
         methods: {
@@ -135,6 +149,9 @@
                     });
                 }
             }
+        },
+        mounted(){
+            console.log(this.$route.query.year);
         }
     }
 </script>

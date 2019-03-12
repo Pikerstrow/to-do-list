@@ -10,5 +10,5 @@ export const routes = [
     {path: '/tasks', name: 'tasks', component: ViewTasks},
     {path: '/tasks/edit/:id', name: 'tasks_edit', component: EditTask, props: true},
     {path: '/calendar', name: 'calendar', component: Calendar},
-    {path: '/tasks/:date', name: 'tasks_by_date', component: ViewTasks, props: true},
+    {path: '/tasks/view', name: 'tasks_by_date', component: ViewTasks, props: true},
 ];

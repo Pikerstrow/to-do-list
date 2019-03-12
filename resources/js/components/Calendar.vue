@@ -17,20 +17,7 @@
                   <span class="month-switcher" @click="nextMonth()"> &rsaquo;&rsaquo; </span>
                </h3>
                <hr>
-               <table class="table table-calendar">
-                  <thead>
-                  <tr>
-                     <th class="text-center">Пн</th>
-                     <th class="text-center">Вт</th>
-                     <th class="text-center">Ср</th>
-                     <th class="text-center">Чт</th>
-                     <th class="text-center">Пт</th>
-                     <th class="text-center">Сб</th>
-                     <th class="text-center">Нд</th>
-                  </tr>
-                  </thead>
-                  <tbody v-html="seedDays()"></tbody>
-               </table>
+               <component v-bind:is="calendar"/>
             </div>
          </div>
       </div>
@@ -38,6 +25,8 @@
 </template>
 
 <script>
+
+
     export default {
         data() {
             return {
@@ -46,7 +35,7 @@
                 todaysDate: new Date().getDate(),
                 todaysMonth: new Date().getMonth(),
                 todaysYear: new Date().getFullYear(),
-                monthTasksQuantities: []
+                monthTasksQuantities: [],
             };
         },
         computed: {
@@ -55,6 +44,11 @@
             },
             date() {
                 return new Date(this.year, this.month);
+            },
+            calendar() {
+                return {
+                    template: this.buildCalendar()
+                }
             }
         },
         methods: {
@@ -75,8 +69,10 @@
                 if (currentMonth == 11) {
                     this.month = 0;
                     this.year++;
+                    this.getTasksQuantityForCalendar(this.year, this.month);
                 } else {
                     this.month++;
+                    this.getTasksQuantityForCalendar(this.year, this.month);
                 }
             },
             prevMonth() {
@@ -86,11 +82,13 @@
                 if (currentMonth == 0) {
                     this.month = 11;
                     this.year--;
+                    this.getTasksQuantityForCalendar(this.year, this.month);
                 } else {
                     this.month--;
+                    this.getTasksQuantityForCalendar(this.year, this.month);
                 }
             },
-            seedDays() {
+            buildCalendar() {
                 let daysQuantity = this.getDaysQuantityInMonth(this.year, this.month + 1);
 
                 let previousMonthDaysQuantity = this.getDaysQuantityInMonth(
@@ -104,7 +102,12 @@
 
                 let end = 42; // 6 weeks * 7 days;
 
-                let result = "<tr>";
+                let result = "<table class=\"table table-calendar\"><thead><tr>";
+                    result += "<th class=\"text-center\">Пн</th><th class=\"text-center\">Вт</th>";
+                    result += "<th class=\"text-center\">Ср</th><th class=\"text-center\">Чт</th>";
+                    result += "<th class=\"text-center\">Пт</th><th class=\"text-center\">Сб</th>";
+                    result += "<th class=\"text-center\">Нд</th></tr></thead>";
+                    result += "<tbody><tr>"
 
                 for (let i = 1; i <= end; i++) {
                     if (i < startDayOfMonth) {
@@ -128,12 +131,6 @@
                         let delta = startDayOfMonth - 1; // because days counts from 1;
                         let dayOfWeek = new Date(this.year, this.month, i - delta).getDay();
 
-
-                        //console.log("delta: " + (i - delta) + " tasks: " + this.monthTasksQuantities[(i - delta)]);
-
-
-
-
                         if (dayOfWeek === 0) {
                             if (
                                 this.month === this.todaysMonth &&
@@ -141,12 +138,20 @@
                                 i - delta === this.todaysDate
                             ) {
                                 if(this.monthTasksQuantities[(i - delta)]){
-                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] + "</td></tr><tr>";
+                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] +
+                                              "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[(i - delta)] + "</router-link>" +
+                                              "</td></tr><tr>";
                                 } else {
                                     result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td></tr><tr>";
                                 }
                             } else {
-                                result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
+                                if(this.monthTasksQuantities[(i - delta)]){
+                                    result += '<td class="text-center day-exists">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] +
+                                        "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[(i - delta)] + "</router-link>"
+                                        + "</td></tr><tr>";
+                                } else {
+                                    result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
+                                }
                             }
                         } else {
                             if (
@@ -155,13 +160,17 @@
                                 i - delta === this.todaysDate
                             ) {
                                 if(this.monthTasksQuantities[(i - delta)]){
-                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] + "</td>";
+                                    result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[(i - delta)] +
+                                        "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[(i - delta)] + "</router-link>" +
+                                        "</td>";
                                 } else {
                                     result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td>";
                                 }
                             } else {
                                 if(this.monthTasksQuantities[(i - delta)]){
-                                    result += '<td class="text-center day-exists">' + (i - delta)  + "|" + this.monthTasksQuantities[(i - delta)] + "</td>";
+                                    result += '<td class="text-center day-exists">' + (i - delta)  + "|" + this.monthTasksQuantities[(i - delta)] +
+                                        "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[(i - delta)] + "</router-link>"
+                                        + "</td>";
                                 } else {
                                     result += '<td class="text-center day-exists">' + (i - delta) + "</td>";
                                 }
@@ -170,8 +179,7 @@
                     }
                 }
 
-                result += "</tr>";
-
+                result += "</tr></tbody></table>";
                 return result;
             },
             getDayForLoop(num) {
@@ -199,20 +207,13 @@
                         break;
                 }
             },
-            getTasksQuantityForCalendar(year = this.year, month = this.month + 1 ){
+            getTasksQuantityForCalendar(year = this.year, month = this.month){
                 axios.get(
                     'http://to-do-list.test/tasks/get-tasks-quantity-by-month/' + year + "/" + month
                 ).then(
                     response => {
                         this.monthTasksQuantities = response.data.quantities;
-
-                        // for(let key in this.monthTasksQuantities){
-                        //     console.log(key + " - " + this.monthTasksQuantities[key]);
-                        //
-                        //     if(parseInt(key) === 8){
-                        //         console.log('equal');
-                        //     }
-                        // }
+                        console.log(this.monthTasksQuantities);
                     }
                 ).catch(
                     error => {

@@ -1906,19 +1906,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1936,6 +1923,11 @@ __webpack_require__.r(__webpack_exports__);
     },
     date: function date() {
       return new Date(this.year, this.month);
+    },
+    calendar: function calendar() {
+      return {
+        template: this.buildCalendar()
+      };
     }
   },
   methods: {
@@ -1956,8 +1948,10 @@ __webpack_require__.r(__webpack_exports__);
       if (currentMonth == 11) {
         this.month = 0;
         this.year++;
+        this.getTasksQuantityForCalendar(this.year, this.month);
       } else {
         this.month++;
+        this.getTasksQuantityForCalendar(this.year, this.month);
       }
     },
     prevMonth: function prevMonth() {
@@ -1967,17 +1961,24 @@ __webpack_require__.r(__webpack_exports__);
       if (currentMonth == 0) {
         this.month = 11;
         this.year--;
+        this.getTasksQuantityForCalendar(this.year, this.month);
       } else {
         this.month--;
+        this.getTasksQuantityForCalendar(this.year, this.month);
       }
     },
-    seedDays: function seedDays() {
+    buildCalendar: function buildCalendar() {
       var daysQuantity = this.getDaysQuantityInMonth(this.year, this.month + 1);
       var previousMonthDaysQuantity = this.getDaysQuantityInMonth(this.year, this.month);
       var startDayOfMonth = this.getDayForLoop(new Date(this.year, this.month, 1).getDay());
       var end = 42; // 6 weeks * 7 days;
 
-      var result = "<tr>";
+      var result = "<table class=\"table table-calendar\"><thead><tr>";
+      result += "<th class=\"text-center\">Пн</th><th class=\"text-center\">Вт</th>";
+      result += "<th class=\"text-center\">Ср</th><th class=\"text-center\">Чт</th>";
+      result += "<th class=\"text-center\">Пт</th><th class=\"text-center\">Сб</th>";
+      result += "<th class=\"text-center\">Нд</th></tr></thead>";
+      result += "<tbody><tr>";
 
       for (var i = 1; i <= end; i++) {
         if (i < startDayOfMonth) {
@@ -1991,28 +1992,32 @@ __webpack_require__.r(__webpack_exports__);
         } else {
           var delta = startDayOfMonth - 1; // because days counts from 1;
 
-          var dayOfWeek = new Date(this.year, this.month, i - delta).getDay(); //console.log("delta: " + (i - delta) + " tasks: " + this.monthTasksQuantities[(i - delta)]);
+          var dayOfWeek = new Date(this.year, this.month, i - delta).getDay();
 
           if (dayOfWeek === 0) {
             if (this.month === this.todaysMonth && this.year === this.todaysYear && i - delta === this.todaysDate) {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "</td></tr><tr>";
+                result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td></tr><tr>";
               } else {
                 result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td></tr><tr>";
               }
             } else {
-              result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
+              if (this.monthTasksQuantities[i - delta]) {
+                result += '<td class="text-center day-exists">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td></tr><tr>";
+              } else {
+                result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
+              }
             }
           } else {
             if (this.month === this.todaysMonth && this.year === this.todaysYear && i - delta === this.todaysDate) {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "</td>";
+                result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td>";
               } else {
                 result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td>";
               }
             } else {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "</td>";
+                result += '<td class="text-center day-exists">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td>";
               } else {
                 result += '<td class="text-center day-exists">' + (i - delta) + "</td>";
               }
@@ -2021,7 +2026,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }
 
-      result += "</tr>";
+      result += "</tr></tbody></table>";
       return result;
     },
     getDayForLoop: function getDayForLoop(num) {
@@ -2059,15 +2064,10 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       var year = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.year;
-      var month = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.month + 1;
+      var month = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.month;
       axios.get('http://to-do-list.test/tasks/get-tasks-quantity-by-month/' + year + "/" + month).then(function (response) {
-        _this.monthTasksQuantities = response.data.quantities; // for(let key in this.monthTasksQuantities){
-        //     console.log(key + " - " + this.monthTasksQuantities[key]);
-        //
-        //     if(parseInt(key) === 8){
-        //         console.log('equal');
-        //     }
-        // }
+        _this.monthTasksQuantities = response.data.quantities;
+        console.log(_this.monthTasksQuantities);
       }).catch(function (error) {
         console.log(error);
       });
@@ -2286,7 +2286,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 //
 //
 //
@@ -2343,7 +2342,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2368,6 +2366,19 @@ __webpack_require__.r(__webpack_exports__);
         timezone: 'UTC+2'
       };
       return today.toLocaleString("UK-ua", options);
+    },
+    concreteDate: function concreteDate() {
+      var year = this.$route.query.year ? this.$route.query.year : '';
+      var month = this.$route.query.month ? this.$route.query.month : '';
+      var date = this.$route.query.date ? this.$route.query.date : '';
+      var concreteDate = new Date(year, month, date);
+      var options = {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+        timezone: 'UTC+2'
+      };
+      return concreteDate.toLocaleString("UK-ua", options);
     }
   },
   methods: {
@@ -2415,6 +2426,9 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
     }
+  },
+  mounted: function mounted() {
+    console.log(this.$route.query.year);
   }
 });
 
@@ -59794,47 +59808,48 @@ var render = function() {
     _vm._v(" "),
     _c("div", { staticClass: "row justify-content-center mb-4" }, [
       _c("div", { staticClass: "col-12" }, [
-        _c("div", { staticClass: "calendar-wrapper" }, [
-          _c("h3", { staticClass: "text-center" }, [
-            _c(
-              "span",
-              {
-                staticClass: "month-switcher",
-                on: {
-                  click: function($event) {
-                    return _vm.prevMonth()
+        _c(
+          "div",
+          { staticClass: "calendar-wrapper" },
+          [
+            _c("h3", { staticClass: "text-center" }, [
+              _c(
+                "span",
+                {
+                  staticClass: "month-switcher",
+                  on: {
+                    click: function($event) {
+                      return _vm.prevMonth()
+                    }
                   }
-                }
-              },
-              [_vm._v(" ‹‹ ")]
-            ),
-            _vm._v(
-              "\n               " +
-                _vm._s(_vm.defaultMonth) +
-                "\n               "
-            ),
-            _c(
-              "span",
-              {
-                staticClass: "month-switcher",
-                on: {
-                  click: function($event) {
-                    return _vm.nextMonth()
+                },
+                [_vm._v(" ‹‹ ")]
+              ),
+              _vm._v(
+                "\n               " +
+                  _vm._s(_vm.defaultMonth) +
+                  "\n               "
+              ),
+              _c(
+                "span",
+                {
+                  staticClass: "month-switcher",
+                  on: {
+                    click: function($event) {
+                      return _vm.nextMonth()
+                    }
                   }
-                }
-              },
-              [_vm._v(" ›› ")]
-            )
-          ]),
-          _vm._v(" "),
-          _c("hr"),
-          _vm._v(" "),
-          _c("table", { staticClass: "table table-calendar" }, [
-            _vm._m(1),
+                },
+                [_vm._v(" ›› ")]
+              )
+            ]),
             _vm._v(" "),
-            _c("tbody", { domProps: { innerHTML: _vm._s(_vm.seedDays()) } })
-          ])
-        ])
+            _c("hr"),
+            _vm._v(" "),
+            _c(_vm.calendar, { tag: "component" })
+          ],
+          1
+        )
       ])
     ])
   ])
@@ -59851,28 +59866,6 @@ var staticRenderFns = [
         ]),
         _vm._v(" "),
         _c("hr")
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", { staticClass: "text-center" }, [_vm._v("Пн")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center" }, [_vm._v("Вт")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center" }, [_vm._v("Ср")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center" }, [_vm._v("Чт")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center" }, [_vm._v("Пт")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center" }, [_vm._v("Сб")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center" }, [_vm._v("Нд")])
       ])
     ])
   }
@@ -60176,9 +60169,11 @@ var render = function() {
       _c("div", { staticClass: "col-12" }, [
         _c("h2", { staticClass: "admin-welcome-h2 text-center" }, [
           _vm._v(
-            "\n            Поточні завдання на сьогодні (" +
-              _vm._s(_vm.currentDate) +
-              ")\n         "
+            "\n            Поточні завдання на " +
+              _vm._s(
+                this.$route.query.year ? _vm.concreteDate : _vm.currentDate
+              ) +
+              "\n         "
           )
         ]),
         _vm._v(" "),
@@ -77340,7 +77335,7 @@ var routes = [{
   name: 'calendar',
   component: _components_Calendar_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
 }, {
-  path: '/tasks/:date',
+  path: '/tasks/view',
   name: 'tasks_by_date',
   component: _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
   props: true

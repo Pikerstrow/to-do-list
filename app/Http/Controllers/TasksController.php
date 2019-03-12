@@ -158,6 +158,7 @@ class TasksController extends Controller
 
     public function getTasksByMonth(Request $request, $year, $month)
     {
+        $month = $month + 1;
         $tasks = $request->user()->tasks()->whereRaw("MONTH(due_date) = {$month} AND YEAR(due_date) = {$year}")->get();
 
         $quantities = [];
