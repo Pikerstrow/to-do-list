@@ -2093,6 +2093,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_bootstrap_datetimepicker__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var pc_bootstrap4_datetimepicker_build_css_bootstrap_datetimepicker_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css */ "./node_modules/pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css");
 /* harmony import */ var pc_bootstrap4_datetimepicker_build_css_bootstrap_datetimepicker_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(pc_bootstrap4_datetimepicker_build_css_bootstrap_datetimepicker_css__WEBPACK_IMPORTED_MODULE_1__);
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 //
 //
 //
@@ -2167,9 +2175,15 @@ __webpack_require__.r(__webpack_exports__);
         /*notification with toastr*/
 
 
-        toastr.success(response.data.message);
+        toastr.success(response.data.message); // let taskDueDateParts = updatedTask.due_date.split('-');
 
-        _this.$router.push('/tasks');
+        var _updatedTask$due_date = updatedTask.due_date.split('-'),
+            _updatedTask$due_date2 = _slicedToArray(_updatedTask$due_date, 3),
+            year = _updatedTask$due_date2[0],
+            month = _updatedTask$due_date2[1],
+            date = _updatedTask$due_date2[2];
+
+        _this.$router.push('/tasks/view?year=' + year + '&month=' + (month - 1) + '&date=' + date);
       }).catch(function (error) {
         if (error.response.data.errors.title) {
           _this.$set(_this.errors, 'title', error.response.data.errors.title[0]);
@@ -2271,7 +2285,6 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     this.$store.dispatch('getUserName');
-    this.$store.dispatch('getTasks');
   }
 });
 
@@ -2352,10 +2365,13 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {
     tasks: function tasks() {
-      return this.$store.getters.tasks.filter(function (task) {
-        var today = new Date().toISOString().substr(0, 10);
-        return task.due_date == today;
-      });
+      // return this.$store.getters.tasks.filter(
+      //     (task) => {
+      //         let today = new Date().toISOString().substr(0, 10);
+      //         return task.due_date == today;
+      //     }
+      // );
+      return this.$store.getters.tasks;
     },
     currentDate: function currentDate() {
       var today = new Date();
@@ -2382,6 +2398,15 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    getTasksByDate: function getTasksByDate() {
+      var year = this.$route.query.year ? this.$route.query.year : new Date().getFullYear();
+      var month = this.$route.query.month ? this.$route.query.month : new Date().getMonth();
+      var date = this.$route.query.date ? this.$route.query.date : new Date().getDate();
+      month++;
+      var requestDay = year + "-" + month + "-" + date;
+      console.log(requestDay);
+      this.$store.dispatch('getTasks', requestDay);
+    },
     changeStatus: function changeStatus(index) {
       var _this = this;
 
@@ -2428,7 +2453,8 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   mounted: function mounted() {
-    console.log(this.$route.query.year);
+    //this.$store.dispatch('getTasks');
+    this.getTasksByDate();
   }
 });
 
@@ -60171,7 +60197,11 @@ var render = function() {
           _vm._v(
             "\n            Поточні завдання на " +
               _vm._s(
-                this.$route.query.year ? _vm.concreteDate : _vm.currentDate
+                this.$route.query.year &&
+                  this.$route.query.month &&
+                  this.$route.query.date
+                  ? _vm.concreteDate
+                  : _vm.currentDate
               ) +
               "\n         "
           )
@@ -60287,7 +60317,27 @@ var render = function() {
                 staticClass:
                   "col-12 no-news-info-block d-flex justify-content-center align-items-center"
               },
-              [_vm._m(1)]
+              [
+                _c("div", { staticClass: "text-center" }, [
+                  _c("i", { staticClass: "far fa-frown fa-8x" }),
+                  _vm._v(" "),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("h3", [
+                    _vm._v(
+                      "На " +
+                        _vm._s(
+                          this.$route.query.year &&
+                            this.$route.query.month &&
+                            this.$route.query.date
+                            ? _vm.concreteDate
+                            : _vm.currentDate
+                        ) +
+                        " задачі відсутні"
+                    )
+                  ])
+                ])
+              ]
             )
       ])
     ])
@@ -60310,18 +60360,6 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Дії")])
       ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "text-center" }, [
-      _c("i", { staticClass: "far fa-frown fa-8x" }),
-      _vm._v(" "),
-      _c("br"),
-      _vm._v(" "),
-      _c("h3", [_vm._v("На сьогодні задачі відсутні")])
     ])
   }
 ]
@@ -60550,7 +60588,7 @@ var render = function() {
                     "router-link",
                     {
                       attrs: {
-                        to: { name: "tasks" },
+                        to: { name: "tasks_by_date" },
                         tag: "li",
                         "active-class": "active",
                         exact: ""
@@ -77321,11 +77359,8 @@ var routes = [{
   path: '/tasks/create',
   name: 'create_task',
   component: _components_AddTask_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
-}, {
-  path: '/tasks',
-  name: 'tasks',
-  component: _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
-}, {
+}, // {path: '/tasks', name: 'tasks', component: ViewTasks},
+{
   path: '/tasks/edit/:id',
   name: 'tasks_edit',
   component: _components_EditTask_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
@@ -77419,10 +77454,19 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
         commit('GET_TASK_FOR_EDITING', response.data.task);
       });
     },
-    getTasks: function getTasks(_ref3) {
+    // getTasks({commit}){
+    //     axios.get('http://to-do-list.test/tasks').then(
+    //         response => {
+    //             commit('GET_TASKS', response.data.tasks);
+    //         }
+    //     ).catch(error => {
+    //         console.log(error)
+    //     });
+    // }
+    getTasks: function getTasks(_ref3, date) {
       var commit = _ref3.commit;
-      axios.get('http://to-do-list.test/tasks').then(function (response) {
-        commit('GET_TASKS', response.data.tasks);
+      axios.get('http://to-do-list.test/tasks?date=' + date).then(function (response) {
+        commit('GET_TASKS', response.data.tasks); //console.log(date);
       }).catch(function (error) {
         console.log(error);
       });

@@ -26,7 +26,6 @@
         },
         mounted(){
             this.$store.dispatch('getUserName');
-            this.$store.dispatch('getTasks');
         }
     }
 </script>

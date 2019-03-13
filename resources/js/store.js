@@ -65,10 +65,20 @@ export const store = new Vuex.Store({
                 }
             );
         },
-        getTasks({commit}){
-            axios.get('http://to-do-list.test/tasks').then(
+        // getTasks({commit}){
+        //     axios.get('http://to-do-list.test/tasks').then(
+        //         response => {
+        //             commit('GET_TASKS', response.data.tasks);
+        //         }
+        //     ).catch(error => {
+        //         console.log(error)
+        //     });
+        // }
+        getTasks({commit}, date){
+            axios.get('http://to-do-list.test/tasks?date=' + date).then(
                 response => {
-                    commit('GET_TASKS', response.data.tasks);
+                   commit('GET_TASKS', response.data.tasks);
+                   //console.log(date);
                 }
             ).catch(error => {
                 console.log(error)

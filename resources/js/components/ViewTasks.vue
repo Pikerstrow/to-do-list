@@ -3,7 +3,7 @@
       <div class="row">
          <div class="col-12">
             <h2 class="admin-welcome-h2 text-center">
-               Поточні завдання на {{ this.$route.query.year ? concreteDate : currentDate}}
+               Поточні завдання на {{ (this.$route.query.year && this.$route.query.month && this.$route.query.date) ? concreteDate : currentDate}}
             </h2>
             <hr>
          </div>
@@ -45,7 +45,7 @@
                <div class="text-center">
                   <i class="far fa-frown fa-8x"></i>
                   <br>
-                  <h3>На сьогодні задачі відсутні</h3>
+                  <h3>На {{ (this.$route.query.year && this.$route.query.month && this.$route.query.date) ? concreteDate : currentDate }} задачі відсутні</h3>
                </div>
             </div>
 
@@ -66,12 +66,13 @@
         },
         computed:{
             tasks(){
-                return this.$store.getters.tasks.filter(
-                    (task) => {
-                        let today = new Date().toISOString().substr(0, 10);
-                        return task.due_date == today;
-                    }
-                );
+                // return this.$store.getters.tasks.filter(
+                //     (task) => {
+                //         let today = new Date().toISOString().substr(0, 10);
+                //         return task.due_date == today;
+                //     }
+                // );
+                return this.$store.getters.tasks;
             },
             currentDate(){
                 let today = new Date();
@@ -100,6 +101,20 @@
             }
         },
         methods: {
+            getTasksByDate(){
+                let year = this.$route.query.year ? this.$route.query.year : new Date().getFullYear();
+                let month = this.$route.query.month ? this.$route.query.month : new Date().getMonth();
+                let date = this.$route.query.date ? this.$route.query.date : new Date().getDate();
+
+                    month++;
+
+                let requestDay = year + "-" + month + "-" + date;
+
+                console.log(requestDay);
+
+                this.$store.dispatch('getTasks', requestDay);
+
+            },
             changeStatus(index){
                 let todaysTasks = this.tasks;
                 let task = todaysTasks[index];
@@ -151,7 +166,8 @@
             }
         },
         mounted(){
-            console.log(this.$route.query.year);
+            //this.$store.dispatch('getTasks');
+            this.getTasksByDate();
         }
     }
 </script>

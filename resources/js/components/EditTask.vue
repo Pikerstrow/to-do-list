@@ -72,12 +72,16 @@
                 ).then(
                     response => {
                         let updatedTask = response.data.task;
+
                         this.$store.commit('updateTasks', updatedTask);
 
                         /*notification with toastr*/
                         toastr.success(response.data.message);
 
-                        this.$router.push('/tasks');
+                       // let taskDueDateParts = updatedTask.due_date.split('-');
+                        let [year, month, date] = updatedTask.due_date.split('-');
+
+                        this.$router.push('/tasks/view?year=' + year + '&month=' + (month-1) + '&date=' + date);
                     }
                 ).catch(
                     error => {
