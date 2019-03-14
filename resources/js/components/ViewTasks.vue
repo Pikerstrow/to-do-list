@@ -8,7 +8,13 @@
             <hr>
          </div>
       </div>
-      <div class="row justify-content-center">
+      <div v-if="isLoaded" class="row justify-content-center">
+         <div v-if="this.$route.query.cal" class="col-12 mb-2">
+            <router-link to="/calendar" class="btn btn-primary btn-sm" tag="button" active-class="active" exact>
+               <span class="i-wrap"><i class="fas fa-long-arrow-alt-left"></i></span>
+               <span class="nav-a-text"> назад</span>
+            </router-link>
+         </div>
          <div class="col-12">
             <div v-if="tasks.length > 0" class="table-responsive">
                <table class="table table-bordered admin-news-table">
@@ -17,6 +23,7 @@
                      <th>№</th>
                      <th>Назва</th>
                      <th>Опис</th>
+                     <th>Виконати</th>
                      <th>Статус</th>
                      <th>Дії</th>
                   </tr>
@@ -26,6 +33,7 @@
                      <td>{{ index + 1 }}</td>
                      <td>{{ task.title }}</td>
                      <td>{{ task.description }}</td>
+                     <td>{{ task.due_date.split("-").reverse().join("-") }}</td>
                      <td :style="[task.status == 0 ? {'color':'red'} : {'color':'green'}]">{{ task.status == 0 ? "Не виконане" : 'Виконане' }}</td>
                      <td>
                         <a @click="changeStatus(index)" class="task-done" title="Змінити статус"><i class="fas fa-check"></i></a>
@@ -51,6 +59,11 @@
 
          </div>
       </div>
+      <div v-else class="row justify-content-center">
+         <div class="col-12 text-center preloader-container">
+            <img src="../../images/preloader.gif">
+         </div>
+      </div>
    </div>
 </template>
 
@@ -61,18 +74,16 @@
             return {
                 toastr: toastr.options = {
                     "positionClass": 'toast-top-full-width'
-                }
+                },
+                previousRoute: ''
             }
         },
         computed:{
             tasks(){
-                // return this.$store.getters.tasks.filter(
-                //     (task) => {
-                //         let today = new Date().toISOString().substr(0, 10);
-                //         return task.due_date == today;
-                //     }
-                // );
                 return this.$store.getters.tasks;
+            },
+            isLoaded(){
+                return this.$store.getters.isTasksLoaded;
             },
             currentDate(){
                 let today = new Date();
@@ -105,15 +116,11 @@
                 let year = this.$route.query.year ? this.$route.query.year : new Date().getFullYear();
                 let month = this.$route.query.month ? this.$route.query.month : new Date().getMonth();
                 let date = this.$route.query.date ? this.$route.query.date : new Date().getDate();
-
-                    month++;
+                month++;
 
                 let requestDay = year + "-" + month + "-" + date;
 
-                console.log(requestDay);
-
                 this.$store.dispatch('getTasks', requestDay);
-
             },
             changeStatus(index){
                 let todaysTasks = this.tasks;
@@ -154,7 +161,6 @@
                     axios.delete("http://to-do-list.test/tasks/" + task.id).then(
                         response=> {
                             this.$store.commit('deleteTask', index);
-                            //this.$delete(this.tasks, index);
 
                             /*notification with toastr*/
                             toastr.success(response.data.message);
@@ -165,9 +171,23 @@
                 }
             }
         },
-        mounted(){
-            //this.$store.dispatch('getTasks');
+        beforeRouteLeave(to, from, next){
+            if(this.$store.getters.isTasksLoaded){
+                this.$store.commit('resetIsLoadedStatus', false);
+                if(!this.$store.getters.isTasksLoaded){
+                    next()
+                }
+            } else {
+                next()
+            }
+        },
+        created(){
             this.getTasksByDate();
+        },
+        beforeUpdate(){
+            if(!this.$store.getters.isTasksLoaded){
+                this.getTasksByDate();
+            }
         }
     }
 </script>
@@ -187,6 +207,9 @@
       cursor: pointer;
       color: darkred;
       margin-right: 5px;
+   }
+   .preloader-container{
+      height: 100%;
    }
    .uncompleted{
       background-color: #fbffbc;

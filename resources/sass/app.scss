@@ -249,16 +249,14 @@ div.ck-editor__editable{
   width:100%;
 }
 
-
 td.day-not-exists {
-  padding: 20px;
-  color: lightgrey;
+  color: #b3b3b3;
 }
 td.day-exists {
 
 }
 td.current-date {
-  border: 2px solid grey;
+  border: 3px solid grey;
   font-weight: bold;
 }
 .table-calendar td {
@@ -283,6 +281,19 @@ td.current-date {
   box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }
 
+.table-calendar td {
+  position: relative;
+}
+.tasks-a, .tasks-a:hover {
+  margin-left: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #31a431;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+
+}
 /*MOBILE DEVICES ADAPTATION*/
 
 

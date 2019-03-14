@@ -1906,6 +1906,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1914,7 +1926,8 @@ __webpack_require__.r(__webpack_exports__);
       todaysDate: new Date().getDate(),
       todaysMonth: new Date().getMonth(),
       todaysYear: new Date().getFullYear(),
-      monthTasksQuantities: []
+      monthTasksQuantities: [],
+      isLoaded: false
     };
   },
   computed: {
@@ -1943,6 +1956,7 @@ __webpack_require__.r(__webpack_exports__);
       return new Date(year, month, 0).getDate();
     },
     nextMonth: function nextMonth() {
+      this.isLoaded = false;
       var currentMonth = this.month;
 
       if (currentMonth == 11) {
@@ -1955,6 +1969,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     prevMonth: function prevMonth() {
+      this.isLoaded = false;
       var currentMonth = this.month;
       var prevMonth = null;
 
@@ -1997,13 +2012,13 @@ __webpack_require__.r(__webpack_exports__);
           if (dayOfWeek === 0) {
             if (this.month === this.todaysMonth && this.year === this.todaysYear && i - delta === this.todaysDate) {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td></tr><tr>";
+                result += '<td class="text-center day-exists current-date">' + (i - delta) + " |" + "<router-link class='tasks-a' to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "&cal=true" + "'>" + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td></tr><tr>";
               } else {
                 result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td></tr><tr>";
               }
             } else {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td></tr><tr>";
+                result += '<td class="text-center day-exists">' + (i - delta) + " |" + "<router-link class='tasks-a' to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "&cal=true" + "'>" + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td></tr><tr>";
               } else {
                 result += '<td class="text-center day-exists">' + (i - delta) + "</td></tr><tr>";
               }
@@ -2011,13 +2026,13 @@ __webpack_require__.r(__webpack_exports__);
           } else {
             if (this.month === this.todaysMonth && this.year === this.todaysYear && i - delta === this.todaysDate) {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists current-date">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td>";
+                result += '<td class="text-center day-exists current-date">' + (i - delta) + " |" + "<router-link class='tasks-a' to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "&cal=true" + "'>" + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td>";
               } else {
                 result += '<td class="text-center day-exists current-date">' + (i - delta) + "</td>";
               }
             } else {
               if (this.monthTasksQuantities[i - delta]) {
-                result += '<td class="text-center day-exists">' + (i - delta) + "|" + this.monthTasksQuantities[i - delta] + "<router-link to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "'> " + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td>";
+                result += '<td class="text-center day-exists">' + (i - delta) + " |" + "<router-link class='tasks-a' to='/tasks/view?year=" + this.year + "&month=" + this.month + "&date=" + (i - delta) + "&cal=true" + "'>" + this.monthTasksQuantities[i - delta] + "</router-link>" + "</td>";
               } else {
                 result += '<td class="text-center day-exists">' + (i - delta) + "</td>";
               }
@@ -2067,7 +2082,7 @@ __webpack_require__.r(__webpack_exports__);
       var month = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.month;
       axios.get('http://to-do-list.test/tasks/get-tasks-quantity-by-month/' + year + "/" + month).then(function (response) {
         _this.monthTasksQuantities = response.data.quantities;
-        console.log(_this.monthTasksQuantities);
+        _this.isLoaded = true;
       }).catch(function (error) {
         console.log(error);
       });
@@ -2237,6 +2252,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   computed: {
     username: function username() {
@@ -2355,23 +2375,34 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       toastr: toastr.options = {
         "positionClass": 'toast-top-full-width'
-      }
+      },
+      previousRoute: ''
     };
   },
   computed: {
     tasks: function tasks() {
-      // return this.$store.getters.tasks.filter(
-      //     (task) => {
-      //         let today = new Date().toISOString().substr(0, 10);
-      //         return task.due_date == today;
-      //     }
-      // );
       return this.$store.getters.tasks;
+    },
+    isLoaded: function isLoaded() {
+      return this.$store.getters.isTasksLoaded;
     },
     currentDate: function currentDate() {
       var today = new Date();
@@ -2404,7 +2435,6 @@ __webpack_require__.r(__webpack_exports__);
       var date = this.$route.query.date ? this.$route.query.date : new Date().getDate();
       month++;
       var requestDay = year + "-" + month + "-" + date;
-      console.log(requestDay);
       this.$store.dispatch('getTasks', requestDay);
     },
     changeStatus: function changeStatus(index) {
@@ -2440,8 +2470,7 @@ __webpack_require__.r(__webpack_exports__);
         var todaysTasks = this.tasks;
         var task = todaysTasks[index];
         axios.delete("http://to-do-list.test/tasks/" + task.id).then(function (response) {
-          _this2.$store.commit('deleteTask', index); //this.$delete(this.tasks, index);
-
+          _this2.$store.commit('deleteTask', index);
           /*notification with toastr*/
 
 
@@ -2452,9 +2481,24 @@ __webpack_require__.r(__webpack_exports__);
       }
     }
   },
-  mounted: function mounted() {
-    //this.$store.dispatch('getTasks');
+  beforeRouteLeave: function beforeRouteLeave(to, from, next) {
+    if (this.$store.getters.isTasksLoaded) {
+      this.$store.commit('resetIsLoadedStatus', false);
+
+      if (!this.$store.getters.isTasksLoaded) {
+        next();
+      }
+    } else {
+      next();
+    }
+  },
+  created: function created() {
     this.getTasksByDate();
+  },
+  beforeUpdate: function beforeUpdate() {
+    if (!this.$store.getters.isTasksLoaded) {
+      this.getTasksByDate();
+    }
   }
 });
 
@@ -7098,7 +7142,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.task-done i[data-v-15a0bd8e] {\n   cursor: pointer;\n   color: darkgreen;\n   margin-right: 5px;\n}\n.task-edit i[data-v-15a0bd8e] {\n   cursor: pointer;\n   color: royalblue;\n   margin-right: 5px;\n}\n.task-delete i[data-v-15a0bd8e] {\n   cursor: pointer;\n   color: darkred;\n   margin-right: 5px;\n}\n.uncompleted[data-v-15a0bd8e]{\n   background-color: #fbffbc;\n}\n.completed[data-v-15a0bd8e] {\n   text-decoration: line-through;\n   background-color: lightgreen;\n}\n", ""]);
+exports.push([module.i, "\n.task-done i[data-v-15a0bd8e] {\n   cursor: pointer;\n   color: darkgreen;\n   margin-right: 5px;\n}\n.task-edit i[data-v-15a0bd8e] {\n   cursor: pointer;\n   color: royalblue;\n   margin-right: 5px;\n}\n.task-delete i[data-v-15a0bd8e] {\n   cursor: pointer;\n   color: darkred;\n   margin-right: 5px;\n}\n.preloader-container[data-v-15a0bd8e]{\n   height: 100%;\n}\n.uncompleted[data-v-15a0bd8e]{\n   background-color: #fbffbc;\n}\n.completed[data-v-15a0bd8e] {\n   text-decoration: line-through;\n   background-color: lightgreen;\n}\n", ""]);
 
 // exports
 
@@ -59832,52 +59876,58 @@ var render = function() {
   return _c("div", [
     _vm._m(0),
     _vm._v(" "),
-    _c("div", { staticClass: "row justify-content-center mb-4" }, [
-      _c("div", { staticClass: "col-12" }, [
-        _c(
-          "div",
-          { staticClass: "calendar-wrapper" },
-          [
-            _c("h3", { staticClass: "text-center" }, [
+    _vm.isLoaded
+      ? _c("div", [
+          _vm._m(1),
+          _vm._v(" "),
+          _c("div", { staticClass: "row justify-content-center mb-4" }, [
+            _c("div", { staticClass: "col-12" }, [
               _c(
-                "span",
-                {
-                  staticClass: "month-switcher",
-                  on: {
-                    click: function($event) {
-                      return _vm.prevMonth()
-                    }
-                  }
-                },
-                [_vm._v(" ‹‹ ")]
-              ),
-              _vm._v(
-                "\n               " +
-                  _vm._s(_vm.defaultMonth) +
-                  "\n               "
-              ),
-              _c(
-                "span",
-                {
-                  staticClass: "month-switcher",
-                  on: {
-                    click: function($event) {
-                      return _vm.nextMonth()
-                    }
-                  }
-                },
-                [_vm._v(" ›› ")]
+                "div",
+                { staticClass: "calendar-wrapper" },
+                [
+                  _c("h3", { staticClass: "text-center" }, [
+                    _c(
+                      "span",
+                      {
+                        staticClass: "month-switcher",
+                        on: {
+                          click: function($event) {
+                            return _vm.prevMonth()
+                          }
+                        }
+                      },
+                      [_vm._v(" ‹‹ ")]
+                    ),
+                    _vm._v(
+                      "\n                  " +
+                        _vm._s(_vm.defaultMonth) +
+                        "\n                  "
+                    ),
+                    _c(
+                      "span",
+                      {
+                        staticClass: "month-switcher",
+                        on: {
+                          click: function($event) {
+                            return _vm.nextMonth()
+                          }
+                        }
+                      },
+                      [_vm._v(" ›› ")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("hr"),
+                  _vm._v(" "),
+                  _c(_vm.calendar, { tag: "component" })
+                ],
+                1
               )
-            ]),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _c(_vm.calendar, { tag: "component" })
-          ],
-          1
-        )
-      ])
-    ])
+            ])
+          ])
+        ])
+      : _c("div", { staticClass: "row justify-content-center" }, [_vm._m(2)])
   ])
 }
 var staticRenderFns = [
@@ -59894,6 +59944,29 @@ var staticRenderFns = [
         _c("hr")
       ])
     ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-12 mb-3" }, [
+        _c("span", { staticClass: "tasks-a" }, [_vm._v("n")]),
+        _vm._v(" - кількість запланованих завдань на дату\n         ")
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass: "col-12 text-center preloader-container align-self-center"
+      },
+      [_c("img", { attrs: { src: __webpack_require__(/*! ../../images/preloader.gif */ "./resources/images/preloader.gif") } })]
+    )
   }
 ]
 render._withStripped = true
@@ -60125,12 +60198,28 @@ var render = function() {
           _c("span", [_vm._v(_vm._s(_vm.username) + "!")])
         ]),
         _vm._v(" "),
-        _c("hr")
+        _c("hr"),
+        _vm._v(" "),
+        _vm._m(0)
       ])
     ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row justify-content-center" }, [
+      _c("div", { staticClass: "col-12 text-center" }, [
+        _c("img", {
+          staticClass: "img-fluid img-thumbnail",
+          attrs: { src: __webpack_require__(/*! ../../images/main-picutre.jpg */ "./resources/images/main-picutre.jpg"), alt: "hello" }
+        })
+      ])
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -60211,136 +60300,187 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _c("div", { staticClass: "row justify-content-center" }, [
-      _c("div", { staticClass: "col-12" }, [
-        _vm.tasks.length > 0
-          ? _c("div", { staticClass: "table-responsive" }, [
-              _c(
-                "table",
-                { staticClass: "table table-bordered admin-news-table" },
+    _vm.isLoaded
+      ? _c("div", { staticClass: "row justify-content-center" }, [
+          this.$route.query.cal
+            ? _c(
+                "div",
+                { staticClass: "col-12 mb-2" },
                 [
-                  _vm._m(0),
-                  _vm._v(" "),
                   _c(
-                    "tbody",
-                    _vm._l(_vm.tasks, function(task, index) {
-                      return _c(
-                        "tr",
-                        {
-                          key: index,
-                          class: task.status == 0 ? "uncompleted" : "completed"
-                        },
-                        [
-                          _c("td", [_vm._v(_vm._s(index + 1))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(task.title))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(task.description))]),
-                          _vm._v(" "),
-                          _c(
-                            "td",
+                    "router-link",
+                    {
+                      staticClass: "btn btn-primary btn-sm",
+                      attrs: {
+                        to: "/calendar",
+                        tag: "button",
+                        "active-class": "active",
+                        exact: ""
+                      }
+                    },
+                    [
+                      _c("span", { staticClass: "i-wrap" }, [
+                        _c("i", { staticClass: "fas fa-long-arrow-alt-left" })
+                      ]),
+                      _vm._v(" "),
+                      _c("span", { staticClass: "nav-a-text" }, [
+                        _vm._v(" назад")
+                      ])
+                    ]
+                  )
+                ],
+                1
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-12" }, [
+            _vm.tasks.length > 0
+              ? _c("div", { staticClass: "table-responsive" }, [
+                  _c(
+                    "table",
+                    { staticClass: "table table-bordered admin-news-table" },
+                    [
+                      _vm._m(0),
+                      _vm._v(" "),
+                      _c(
+                        "tbody",
+                        _vm._l(_vm.tasks, function(task, index) {
+                          return _c(
+                            "tr",
                             {
-                              style: [
-                                task.status == 0
-                                  ? { color: "red" }
-                                  : { color: "green" }
-                              ]
+                              key: index,
+                              class:
+                                task.status == 0 ? "uncompleted" : "completed"
                             },
                             [
-                              _vm._v(
-                                _vm._s(
-                                  task.status == 0 ? "Не виконане" : "Виконане"
+                              _c("td", [_vm._v(_vm._s(index + 1))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(task.title))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(task.description))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(
+                                  _vm._s(
+                                    task.due_date
+                                      .split("-")
+                                      .reverse()
+                                      .join("-")
+                                  )
                                 )
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                {
+                                  style: [
+                                    task.status == 0
+                                      ? { color: "red" }
+                                      : { color: "green" }
+                                  ]
+                                },
+                                [
+                                  _vm._v(
+                                    _vm._s(
+                                      task.status == 0
+                                        ? "Не виконане"
+                                        : "Виконане"
+                                    )
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                [
+                                  _c(
+                                    "a",
+                                    {
+                                      staticClass: "task-done",
+                                      attrs: { title: "Змінити статус" },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.changeStatus(index)
+                                        }
+                                      }
+                                    },
+                                    [_c("i", { staticClass: "fas fa-check" })]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "router-link",
+                                    {
+                                      staticClass: "task-edit",
+                                      attrs: {
+                                        to: "/tasks/edit/" + task.id,
+                                        tag: "a",
+                                        title: "Редагувати",
+                                        "active-class": "active",
+                                        exact: ""
+                                      }
+                                    },
+                                    [
+                                      _c("i", {
+                                        staticClass: "fas fa-pencil-alt"
+                                      })
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "a",
+                                    {
+                                      staticClass: "task-delete",
+                                      attrs: { title: "Видалити" },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.deleteTask(index)
+                                        }
+                                      }
+                                    },
+                                    [_c("i", { staticClass: "fas fa-times" })]
+                                  )
+                                ],
+                                1
                               )
                             ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "td",
-                            [
-                              _c(
-                                "a",
-                                {
-                                  staticClass: "task-done",
-                                  attrs: { title: "Змінити статус" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.changeStatus(index)
-                                    }
-                                  }
-                                },
-                                [_c("i", { staticClass: "fas fa-check" })]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "router-link",
-                                {
-                                  staticClass: "task-edit",
-                                  attrs: {
-                                    to: "/tasks/edit/" + task.id,
-                                    tag: "a",
-                                    title: "Редагувати",
-                                    "active-class": "active",
-                                    exact: ""
-                                  }
-                                },
-                                [_c("i", { staticClass: "fas fa-pencil-alt" })]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "a",
-                                {
-                                  staticClass: "task-delete",
-                                  attrs: { title: "Видалити" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.deleteTask(index)
-                                    }
-                                  }
-                                },
-                                [_c("i", { staticClass: "fas fa-times" })]
-                              )
-                            ],
-                            1
                           )
-                        ]
+                        }),
+                        0
                       )
-                    }),
-                    0
+                    ]
                   )
-                ]
-              )
-            ])
-          : _c(
-              "div",
-              {
-                staticClass:
-                  "col-12 no-news-info-block d-flex justify-content-center align-items-center"
-              },
-              [
-                _c("div", { staticClass: "text-center" }, [
-                  _c("i", { staticClass: "far fa-frown fa-8x" }),
-                  _vm._v(" "),
-                  _c("br"),
-                  _vm._v(" "),
-                  _c("h3", [
-                    _vm._v(
-                      "На " +
-                        _vm._s(
-                          this.$route.query.year &&
-                            this.$route.query.month &&
-                            this.$route.query.date
-                            ? _vm.concreteDate
-                            : _vm.currentDate
-                        ) +
-                        " задачі відсутні"
-                    )
-                  ])
                 ])
-              ]
-            )
-      ])
-    ])
+              : _c(
+                  "div",
+                  {
+                    staticClass:
+                      "col-12 no-news-info-block d-flex justify-content-center align-items-center"
+                  },
+                  [
+                    _c("div", { staticClass: "text-center" }, [
+                      _c("i", { staticClass: "far fa-frown fa-8x" }),
+                      _vm._v(" "),
+                      _c("br"),
+                      _vm._v(" "),
+                      _c("h3", [
+                        _vm._v(
+                          "На " +
+                            _vm._s(
+                              this.$route.query.year &&
+                                this.$route.query.month &&
+                                this.$route.query.date
+                                ? _vm.concreteDate
+                                : _vm.currentDate
+                            ) +
+                            " задачі відсутні"
+                        )
+                      ])
+                    ])
+                  ]
+                )
+          ])
+        ])
+      : _c("div", { staticClass: "row justify-content-center" }, [_vm._m(1)])
   ])
 }
 var staticRenderFns = [
@@ -60356,11 +60496,23 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Опис")]),
         _vm._v(" "),
+        _c("th", [_vm._v("Виконати")]),
+        _vm._v(" "),
         _c("th", [_vm._v("Статус")]),
         _vm._v(" "),
         _c("th", [_vm._v("Дії")])
       ])
     ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "col-12 text-center preloader-container" },
+      [_c("img", { attrs: { src: __webpack_require__(/*! ../../images/preloader.gif */ "./resources/images/preloader.gif") } })]
+    )
   }
 ]
 render._withStripped = true
@@ -60588,7 +60740,7 @@ var render = function() {
                     "router-link",
                     {
                       attrs: {
-                        to: { name: "tasks_by_date" },
+                        to: { name: "todays_tasks" },
                         tag: "li",
                         "active-class": "active",
                         exact: ""
@@ -60600,7 +60752,7 @@ var render = function() {
                           _c("i", { staticClass: "fas fa-eye" })
                         ]),
                         _c("span", { staticClass: "nav-a-text" }, [
-                          _vm._v("\n                             Переглянути ")
+                          _vm._v("\n                             На сьогодні ")
                         ])
                       ])
                     ]
@@ -76458,6 +76610,28 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./resources/images/main-picutre.jpg":
+/*!*******************************************!*\
+  !*** ./resources/images/main-picutre.jpg ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/main-picutre.jpg?b923d8848549538148a6d10cb6ea9364";
+
+/***/ }),
+
+/***/ "./resources/images/preloader.gif":
+/*!****************************************!*\
+  !*** ./resources/images/preloader.gif ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/preloader.gif?41e67a7ce1352f56eab3192281c5782d";
+
+/***/ }),
+
 /***/ "./resources/js/admin.js":
 /*!*******************************!*\
   !*** ./resources/js/admin.js ***!
@@ -77359,8 +77533,11 @@ var routes = [{
   path: '/tasks/create',
   name: 'create_task',
   component: _components_AddTask_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
-}, // {path: '/tasks', name: 'tasks', component: ViewTasks},
-{
+}, {
+  path: '/tasks/view/today',
+  name: 'todays_tasks',
+  component: _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+}, {
   path: '/tasks/edit/:id',
   name: 'tasks_edit',
   component: _components_EditTask_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
@@ -77372,8 +77549,10 @@ var routes = [{
 }, {
   path: '/tasks/view',
   name: 'tasks_by_date',
-  component: _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
-  props: true
+  component: _components_ViewTasks_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+}, {
+  path: '/*',
+  redirect: '/'
 }];
 
 /***/ }),
@@ -77397,8 +77576,9 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
 var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   state: {
     username: null,
-    tasks: [],
-    taskForEditing: {}
+    tasks: null,
+    taskForEditing: {},
+    isTasksLoaded: false
   },
   getters: {
     username: function username(state) {
@@ -77409,6 +77589,9 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     },
     taskForEditing: function taskForEditing(state) {
       return state.taskForEditing;
+    },
+    isTasksLoaded: function isTasksLoaded(state) {
+      return state.isTasksLoaded;
     }
   },
   mutations: {
@@ -77417,9 +77600,13 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     },
     GET_TASKS: function GET_TASKS(state, payload) {
       state.tasks = payload;
+      state.isTasksLoaded = true;
     },
     GET_TASK_FOR_EDITING: function GET_TASK_FOR_EDITING(state, payload) {
       state.taskForEditing = payload;
+    },
+    resetIsLoadedStatus: function resetIsLoadedStatus(state, payload) {
+      state.isTasksLoaded = payload;
     },
     addTask: function addTask(state, task) {
       state.tasks.unshift(task);
@@ -77454,19 +77641,10 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
         commit('GET_TASK_FOR_EDITING', response.data.task);
       });
     },
-    // getTasks({commit}){
-    //     axios.get('http://to-do-list.test/tasks').then(
-    //         response => {
-    //             commit('GET_TASKS', response.data.tasks);
-    //         }
-    //     ).catch(error => {
-    //         console.log(error)
-    //     });
-    // }
     getTasks: function getTasks(_ref3, date) {
       var commit = _ref3.commit;
       axios.get('http://to-do-list.test/tasks?date=' + date).then(function (response) {
-        commit('GET_TASKS', response.data.tasks); //console.log(date);
+        commit('GET_TASKS', response.data.tasks);
       }).catch(function (error) {
         console.log(error);
       });

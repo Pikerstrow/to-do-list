@@ -6,8 +6,9 @@ Vue.use(Vuex);
 export const store = new Vuex.Store({
     state: {
         username: null,
-        tasks: [],
-        taskForEditing: {}
+        tasks: null,
+        taskForEditing: {},
+        isTasksLoaded: false
     },
     getters: {
         username(state){
@@ -18,6 +19,9 @@ export const store = new Vuex.Store({
         },
         taskForEditing(state){
             return state.taskForEditing;
+        },
+        isTasksLoaded(state) {
+            return state.isTasksLoaded;
         }
     },
     mutations: {
@@ -26,9 +30,13 @@ export const store = new Vuex.Store({
         },
         GET_TASKS(state, payload){
             state.tasks = payload;
+            state.isTasksLoaded = true;
         },
         GET_TASK_FOR_EDITING(state, payload){
             state.taskForEditing = payload
+        },
+        resetIsLoadedStatus(state, payload){
+            state.isTasksLoaded = payload;
         },
         addTask(state, task){
             state.tasks.unshift(task);
@@ -65,20 +73,10 @@ export const store = new Vuex.Store({
                 }
             );
         },
-        // getTasks({commit}){
-        //     axios.get('http://to-do-list.test/tasks').then(
-        //         response => {
-        //             commit('GET_TASKS', response.data.tasks);
-        //         }
-        //     ).catch(error => {
-        //         console.log(error)
-        //     });
-        // }
         getTasks({commit}, date){
             axios.get('http://to-do-list.test/tasks?date=' + date).then(
                 response => {
                    commit('GET_TASKS', response.data.tasks);
-                   //console.log(date);
                 }
             ).catch(error => {
                 console.log(error)

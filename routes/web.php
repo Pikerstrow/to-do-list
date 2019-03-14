@@ -20,3 +20,7 @@ Route::get('/tasks/get-for-editing/{id}', 'TasksController@getTaskForEditing')->
 Route::resource('/tasks', 'TasksController')->middleware('auth');
 Route::patch('/tasks/change-status/{id}', 'TasksController@updateStatus')->middleware('auth');
 
+
+Route::get('/{vue_capture?}', function () {
+    return view("admin");
+})->where('vue_capture', '[\/\w\.-]*')->middleware('auth');
