@@ -4,5 +4,5 @@ Small studying app - "to do" list. Created with the help of Laravel and Vue.js. 
 
 Used in project (exept of HTML, CSS, etc...):
 
-Laravel 5.8,
-Vue.js 2.5
+- Laravel 5.8,
+- Vue.js 2.5
